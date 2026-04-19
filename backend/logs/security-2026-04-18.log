@@ -1,0 +1,5 @@
+{"details":"\"login\" length must be at least 3 characters long","ip":"::1","level":"warn","message":"Tentativa de login com dados inválidos","timestamp":"2026-04-18T23:57:04.365Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"}
+{"error":"Senha incorreta","ip":"::1","level":"warn","login":"victor123","message":"Falha no login","timestamp":"2026-04-18T23:57:59.940Z"}
+{"error":"Senha incorreta","ip":"::1","level":"warn","login":"victor123","message":"Falha no login","timestamp":"2026-04-18T23:58:01.052Z"}
+{"details":"\"senha\" length must be at least 6 characters long","ip":"::1","level":"warn","message":"Tentativa de login com dados inválidos","timestamp":"2026-04-18T23:58:05.963Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"}
+{"error":"Senha incorreta","ip":"::1","level":"warn","login":"victor123","message":"Falha no login","timestamp":"2026-04-18T23:58:07.586Z"}
