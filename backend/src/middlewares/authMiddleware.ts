@@ -12,7 +12,7 @@ export function autenticar(req: AuthRequest, res: Response, next: NextFunction) 
     return res.status(401).json({ message: "Token não fornecido ou formato inválido" });
   }
 
-  const token = authHeader.split(" ")[1];
+  const token = authHeader.split(" ")[3];
   if (!token) {
     return res.status(401).json({ message: "Token não fornecido" });
   }

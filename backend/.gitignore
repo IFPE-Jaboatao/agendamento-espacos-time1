@@ -1,0 +1,25 @@
+# # Dependências
+# node_modules/
+
+# # Logs
+# npm-debug.log*
+# yarn-debug.log*
+# yarn-error.log*
+# logs/
+
+# # Compilação (TypeScript)
+# dist/
+# out/
+
+# # Variáveis de ambiente (SENSÍVEL - NUNCA SUBIR)
+# .env
+
+# # Banco de Dados SQLite (se usar algum dia para testes)
+# *.sqlite
+# *.db
+
+# # IDEs e Editores
+# .vscode/
+# .idea/
+# .DS_Store
+# Thumbs.db
