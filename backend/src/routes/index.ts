@@ -12,6 +12,7 @@ const authController = new AuthController();
 
 // Rotas públicas
 router.post("/auth/login", authController.login);
+// router.post("/auth/registrar", authController.registrar);
 
 // Rotas protegidas
 router.post("/auth/registrar", autenticar, exigirPerfil(Perfil.ADMIN), authController.registrar);
