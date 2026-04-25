@@ -1,5 +1,5 @@
 import { AppDataSource } from "../data-source";
-import { Usuario } from "../entities/Usuario";
+import { Usuario, Perfil } from "../entities/Usuario";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -20,12 +20,42 @@ export class AuthService {
       { expiresIn: "8h" }
     );
 
-    return { token, usuario: { id: usuario.id, nome: usuario.nome, perfil: usuario.perfil } };
+    return {
+      token,
+      usuario: {
+        id: usuario.id,
+        nome: usuario.nome,
+        perfil: usuario.perfil
+      }
+    };
   }
 
   async registrar(dados: Partial<Usuario>) {
+
+    // 1. Verificar duplicidade
+    const emailExiste = await repo.findOneBy({ email: dados.email! });
+    if (emailExiste) {
+      throw new Error("Email já cadastrado");
+    }
+
+    const loginExiste = await repo.findOneBy({ login: dados.login! });
+    if (loginExiste) {
+      throw new Error("Login já está em uso");
+    }
+
+    // 2. Forçar perfil seguro
+    const perfilSeguro = Perfil.USUARIO;
+
+    // 3. Hash da senha
     const senhaHash = await bcrypt.hash(dados.senha!, 10);
-    const usuario = repo.create({ ...dados, senha: senhaHash });
+
+    // 4. Criar usuário
+    const usuario = repo.create({
+      ...dados,
+      senha: senhaHash,
+      perfil: perfilSeguro
+    });
+
     return repo.save(usuario);
   }
 }
