@@ -13,7 +13,8 @@ const loginSchema = Joi.object({
 
 const registerSchema = Joi.object({
   login: Joi.string().min(3).max(50).required(),
-  senha: Joi.string().min(8).pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)')).required(),
+  senha: Joi.string().min(4).required(),
+  // senha: Joi.string().min(8).pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)')).required(),
   nome: Joi.string().min(2).max(100).required(),
   email: Joi.string().email().required(),
   perfil: Joi.string().valid('admin', 'usuario').optional().default('usuario')

@@ -1,0 +1,19 @@
+{"ip":"::1","level":"info","login":"Victor","message":"Login bem-sucedido","timestamp":"2026-04-26T20:44:07.606Z","userId":6}
+{"details":"\"senha\" length must be at least 8 characters long","ip":"::1","level":"warn","message":"Tentativa de registro com dados inválidos","timestamp":"2026-04-26T20:44:36.746Z","userAgent":"PostmanRuntime/7.53.0"}
+{"details":"\"senha\" length must be at least 8 characters long","ip":"::1","level":"warn","message":"Tentativa de registro com dados inválidos","timestamp":"2026-04-26T20:44:51.540Z","userAgent":"PostmanRuntime/7.53.0"}
+{"details":"\"senha\" with value \"12345678\" fails to match the required pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)/","ip":"::1","level":"warn","message":"Tentativa de registro com dados inválidos","timestamp":"2026-04-26T20:45:06.831Z","userAgent":"PostmanRuntime/7.53.0"}
+{"ip":"::1","level":"warn","message":"Token expirado","timestamp":"2026-04-26T20:45:22.826Z","userAgent":"PostmanRuntime/7.53.0"}
+{"ip":"::1","level":"info","login":"Victor","message":"Login bem-sucedido","timestamp":"2026-04-26T20:45:26.105Z","userId":6}
+{"ip":"::1","level":"info","login":"Victor","message":"Login bem-sucedido","timestamp":"2026-04-26T20:46:26.308Z","userId":6}
+{"ip":"::1","level":"info","login":"Victor","message":"Login bem-sucedido","timestamp":"2026-04-26T20:46:35.125Z","userId":6}
+{"details":"\"senha\" length must be at least 8 characters long","ip":"::1","level":"warn","message":"Tentativa de registro com dados inválidos","timestamp":"2026-04-26T20:46:39.277Z","userAgent":"PostmanRuntime/7.53.0"}
+{"details":"\"senha\" length must be at least 8 characters long","ip":"::1","level":"warn","message":"Tentativa de registro com dados inválidos","timestamp":"2026-04-26T20:46:47.498Z","userAgent":"PostmanRuntime/7.53.0"}
+{"details":"\"senha\" length must be at least 8 characters long","ip":"::1","level":"warn","message":"Tentativa de registro com dados inválidos","timestamp":"2026-04-26T20:47:13.759Z","userAgent":"PostmanRuntime/7.53.0"}
+{"details":"\"senha\" with value \"fael1234\" fails to match the required pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)/","ip":"::1","level":"warn","message":"Tentativa de registro com dados inválidos","timestamp":"2026-04-26T20:47:23.139Z","userAgent":"PostmanRuntime/7.53.0"}
+{"details":"\"senha\" length must be at least 8 characters long","ip":"::1","level":"warn","message":"Tentativa de registro com dados inválidos","timestamp":"2026-04-26T20:48:07.094Z","userAgent":"PostmanRuntime/7.53.0"}
+{"ip":"::1","level":"info","login":"Rafael","message":"Usuário registrado","perfil":"usuario","timestamp":"2026-04-26T20:48:33.703Z","userId":7}
+{"ip":"::1","level":"info","login":"Victor","message":"Login bem-sucedido","timestamp":"2026-04-26T20:51:03.629Z","userId":6}
+{"ip":"::1","level":"info","login":"Bernardo","message":"Usuário registrado","perfil":"admin","timestamp":"2026-04-26T20:51:38.268Z","userId":8}
+{"ip":"::1","level":"info","login":"Victor","message":"Login bem-sucedido","timestamp":"2026-04-26T20:52:02.006Z","userId":6}
+{"error":"Email já cadastrado","ip":"::1","level":"error","login":"Jonata","message":"Erro no registro","timestamp":"2026-04-26T20:54:19.407Z"}
+{"ip":"::1","level":"info","login":"Jonata","message":"Usuário registrado","perfil":"admin","timestamp":"2026-04-26T20:54:25.824Z","userId":9}
