@@ -17,3 +17,4 @@
 {"ip":"::1","level":"info","login":"Victor","message":"Login bem-sucedido","timestamp":"2026-04-26T20:52:02.006Z","userId":6}
 {"error":"Email já cadastrado","ip":"::1","level":"error","login":"Jonata","message":"Erro no registro","timestamp":"2026-04-26T20:54:19.407Z"}
 {"ip":"::1","level":"info","login":"Jonata","message":"Usuário registrado","perfil":"admin","timestamp":"2026-04-26T20:54:25.824Z","userId":9}
+{"ip":"::1","level":"info","login":"Victor","message":"Login bem-sucedido","timestamp":"2026-04-27T01:05:12.736Z","userId":6}
