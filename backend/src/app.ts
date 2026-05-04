@@ -38,7 +38,7 @@ app.use("/api", router);
 app.use("/api/auth/login", authLimiter);
 
 AppDataSource.initialize()
-  .then(() => console.log("✅ Banco conectado"))
-  .catch((err) => console.error("❌ Erro ao conectar banco:", err));
+  .then(() => console.log("Banco conectado"))
+  .catch((err) => console.error("Erro ao conectar banco:", err));
 
 export default app;

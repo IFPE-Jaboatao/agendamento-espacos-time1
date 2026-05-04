@@ -16,7 +16,6 @@ export default function Login() {
     setCarregando(true);
     setErro("");
 
-    // Validação básica no cliente
     if (!form.login.trim() || !form.senha.trim()) {
       setErro("Login e senha são obrigatórios");
       setCarregando(false);

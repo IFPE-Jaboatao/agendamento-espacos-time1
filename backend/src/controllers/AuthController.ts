@@ -18,7 +18,6 @@ const registerSchema = Joi.object({
   email: Joi.string().email().required(),
   perfil: Joi.string().valid('admin', 'usuario').optional().default('usuario'),
   
-  // ADICIONE ESTA LINHA AQUI:
   tipoUsuario: Joi.string().valid('aluno', 'professor', 'coordenador').optional()
 });
 

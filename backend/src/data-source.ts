@@ -12,7 +12,7 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_USER || "root",
   password: process.env.DB_PASS || "",
   database: process.env.DB_NAME || "reservas_db",
-  synchronize: true,       // ⚠️ só em dev! Em prod use migrations
+  synchronize: true,
   logging: false,
   entities: [Usuario, Reserva, Espaco, HistoricoReserva],
 });
