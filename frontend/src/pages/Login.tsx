@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Button, Card, Label, TextInput, Alert } from "flowbite-react";
@@ -68,6 +69,14 @@ export default function Login() {
           <Button type="submit" disabled={carregando}>
             {carregando ? "Entrando..." : "Entrar"}
           </Button>
+          <div className="text-center mt-2">
+          <Link
+            to="/cadastro"
+            className="text-sm text-blue-600 hover:underline dark:text-blue-400"
+          >
+            Não tem conta? Cadastre-se
+          </Link>
+        </div>
         </form>
       </Card>
     </div>
