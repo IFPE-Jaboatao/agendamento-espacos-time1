@@ -64,7 +64,7 @@ export default function Cadastro() {
               id="nome"
               type="text"
               required 
-              placeholder="Ex: João Silva"
+              placeholder="Digite o nome completo"
               value={form.nome} 
               onChange={(e) => setForm({...form, nome: e.target.value})} 
             />
@@ -111,7 +111,7 @@ export default function Cadastro() {
               id="login"
               type="text"
               required 
-              placeholder="Escolha um nome de usuário"
+              placeholder="Digite o login do seu usuário"
               value={form.login} 
               onChange={(e) => setForm({...form, login: e.target.value})} 
             />
@@ -127,7 +127,7 @@ export default function Cadastro() {
                 id="senha"
                 type="password" 
                 required 
-                placeholder="••••••••"
+                placeholder="Digite sua senha"
                 value={form.senha} 
                 onChange={(e) => setForm({...form, senha: e.target.value})} 
               />
@@ -140,7 +140,7 @@ export default function Cadastro() {
                 id="confirmar"
                 type="password" 
                 required 
-                placeholder="••••••••"
+                placeholder="Confirme sua senha"
                 value={form.confirmarSenha} 
                 onChange={(e) => setForm({...form, confirmarSenha: e.target.value})} 
               />
