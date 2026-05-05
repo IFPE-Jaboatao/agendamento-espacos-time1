@@ -19,9 +19,18 @@ export default function Cadastro() {
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
 
+  function handleChange(field: string, value: string) {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErro("");
+
+    if (form.senha.length < 6) {
+      setErro("A senha deve ter no mínimo 6 caracteres");
+      return;
+    }
 
     if (form.senha !== form.confirmarSenha) {
       setErro("As senhas não coincidem");
@@ -39,11 +48,17 @@ export default function Cadastro() {
         tipoUsuario: form.tipoUsuario,
         perfil: "usuario"
       });
-      
+
       alert("Cadastro realizado! Faça login.");
       navigate("/");
+
     } catch (err: any) {
-      setErro(err.response?.data?.message || "Erro ao cadastrar");
+      setErro(
+        err?.response?.data?.details ||
+        err?.response?.data?.message ||
+        err.message ||
+        "Erro ao cadastrar"
+      );
     } finally {
       setCarregando(false);
     }
@@ -52,49 +67,44 @@ export default function Cadastro() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
       <Card className="w-full max-w-md">
-        <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-white">Criar Conta</h2>
+        <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-white">
+          Criar Conta
+        </h2>
+
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          
+
           {/* Nome */}
           <div>
-            <div className="mb-2 block">
-              <Label htmlFor="nome" value="Nome Completo" />
-            </div>
-            <TextInput 
+            <Label htmlFor="nome" value="Nome Completo" />
+            <TextInput
               id="nome"
-              type="text"
-              required 
+              required
               placeholder="Digite o nome completo"
-              value={form.nome} 
-              onChange={(e) => setForm({...form, nome: e.target.value})} 
+              value={form.nome}
+              onChange={(e) => handleChange("nome", e.target.value)}
             />
           </div>
 
           {/* Email */}
           <div>
-            <div className="mb-2 block">
-              <Label htmlFor="email" value="Email" />
-            </div>
-            <TextInput 
+            <Label htmlFor="email" value="Email" />
+            <TextInput
               id="email"
-              type="email" 
-              required 
+              type="email"
+              required
               placeholder="nome@email.com"
-              value={form.email} 
-              onChange={(e) => setForm({...form, email: e.target.value})} 
+              value={form.email}
+              onChange={(e) => handleChange("email", e.target.value)}
             />
           </div>
 
-          {/* Tipo de Usuário */}
+          {/* Tipo */}
           <div>
-            <div className="mb-2 block">
-              <Label htmlFor="tipo" value="Tipo de Usuário" />
-            </div>
-            <Select 
+            <Label htmlFor="tipo" value="Tipo de Usuário" />
+            <Select
               id="tipo"
-              required
-              value={form.tipoUsuario} 
-              onChange={(e) => setForm({...form, tipoUsuario: e.target.value})}
+              value={form.tipoUsuario}
+              onChange={(e) => handleChange("tipoUsuario", e.target.value)}
             >
               <option value="aluno">Aluno</option>
               <option value="professor">Professor</option>
@@ -104,45 +114,39 @@ export default function Cadastro() {
 
           {/* Login */}
           <div>
-            <div className="mb-2 block">
-              <Label htmlFor="login" value="Login (Usuário)" />
-            </div>
-            <TextInput 
+            <Label htmlFor="login" value="Login" />
+            <TextInput
               id="login"
-              type="text"
-              required 
-              placeholder="Digite o login do seu usuário"
-              value={form.login} 
-              onChange={(e) => setForm({...form, login: e.target.value})} 
+              required
+              placeholder="Digite seu login"
+              value={form.login}
+              onChange={(e) => handleChange("login", e.target.value)}
             />
           </div>
 
-          {/* Senhas */}
+          {/* Senha */}
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <div className="mb-2 block">
-                <Label htmlFor="senha" value="Senha" />
-              </div>
-              <TextInput 
+              <Label htmlFor="senha" value="Senha" />
+              <TextInput
                 id="senha"
-                type="password" 
-                required 
+                type="password"
+                required
                 placeholder="Digite sua senha"
-                value={form.senha} 
-                onChange={(e) => setForm({...form, senha: e.target.value})} 
+                value={form.senha}
+                onChange={(e) => handleChange("senha", e.target.value)}
               />
             </div>
+
             <div>
-              <div className="mb-2 block">
-                <Label htmlFor="confirmar" value="Confirmar" />
-              </div>
-              <TextInput 
+              <Label htmlFor="confirmar" value="Confirmar" />
+              <TextInput
                 id="confirmar"
-                type="password" 
-                required 
+                type="password"
+                required
                 placeholder="Confirme sua senha"
-                value={form.confirmarSenha} 
-                onChange={(e) => setForm({...form, confirmarSenha: e.target.value})} 
+                value={form.confirmarSenha}
+                onChange={(e) => handleChange("confirmarSenha", e.target.value)}
               />
             </div>
           </div>
@@ -153,12 +157,14 @@ export default function Cadastro() {
             </Alert>
           )}
 
-          <Button type="submit" disabled={carregando} className="mt-2">
+          <Button type="submit" disabled={carregando}>
             {carregando ? "Processando..." : "Cadastrar"}
           </Button>
+
           <Button type="button" color="light" onClick={() => navigate("/")}>
             Voltar
           </Button>
+
         </form>
       </Card>
     </div>
