@@ -12,11 +12,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Ambiente (SEGREDOS)
-.env
-.env.local
-.env.development
-.env.production
+# Desativado por enquanto
+# # Ambiente (SEGREDOS)
+# .env
+# .env.local
+# .env.development
+# .env.production
 
 # Sistema operacional
 .DS_Store

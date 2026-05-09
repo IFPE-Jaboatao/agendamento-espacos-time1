@@ -8,7 +8,7 @@ const app = express();
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send("API rodando 🚀");
+  res.send("API rodando");
 });
 
 const PORT = process.env.PORT || 3000;

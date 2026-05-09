@@ -1,34 +1,52 @@
-# 📦 API Node.js + TypeScript
+# Agendamento Espacos Time 1
 
-Projeto backend construído com **Node.js + Express + TypeScript**, preparado para autenticação, banco de dados e boas práticas de segurança.
+Projeto backend construído com **Node.js + Express + TypeScript + TypeORM**, preparado para autenticação JWT, controle de reservas de espaços e histórico de ações.
 
 ---
 
 ## Tecnologias utilizadas
 
-* Node.js
-* TypeScript
-* Express
-* dotenv
-* nodemon / ts-node-dev
-* MySQL (futuro)
-* TypeORM (futuro)
+- Node.js
+- TypeScript
+- Express
+- dotenv
+- MySQL
+- TypeORM
+- bcrypt (senhas seguras)
+- JWT (autenticação)
 
 ---
 
-## 📁 Estrutura do projeto
+## Estrutura do projeto
 
 ```
 backend/
  ├── src/
+ │   ├── entities/
+ │   │    ├── Usuario.ts
+ │   │    ├── Reserva.ts
+ │   │    ├── Espaco.ts
+ │   │    ├── HistoricoReserva.ts
+ │   │
+ │   ├── services/
+ │   │    ├── AuthService.ts
+ │   │    ├── UsuarioService.ts
+ │   │    ├── ReservaService.ts
+ │   │    ├── EspacoService.ts
+ │   │    ├── HistoricoReservaService.ts
+ │   │
+ │   ├── utils/
+ │   │    └── PasswordUtil.ts
+ │   │
+ │   ├── data-source.ts
  │   └── server.ts
+ │
  ├── node_modules/
  ├── package.json
- ├── package-lock.json
  ├── tsconfig.json
- ├── README.md
+ ├── .env
  ├── .gitignore
- └── frontend/ (opcional)
+ └── README.md
 ```
 
 ---
@@ -51,11 +69,19 @@ npm install
 
 ---
 
-### 3. Criar arquivo de ambiente
-
-Crie um arquivo chamado `.env` na raiz do backend:
+### 3. Configurar o arquivo `.env`
 
 ```env
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASS=root
+DB_NAME=agenda_espacos
+
+JWT_SECRET=9f3c2a7b8d6e4f1c9a0d8b7e6f5c4a3d2b1e0f9c8a7b6d5c4
+
+DB_LOGGING=false
+
 PORT=3000
 ```
 
@@ -77,7 +103,7 @@ http://localhost:3000
 
 ---
 
-## 📜 Scripts disponíveis
+## Scripts disponíveis
 
 ```json
 {
@@ -91,14 +117,12 @@ http://localhost:3000
 
 ---
 
-## 📄 .gitignore (IMPORTANTE)
-
-Crie um arquivo `.gitignore` dentro do backend com:
+## .gitignore
 
 ```gitignore
 node_modules/
 dist/
-.env
+# .env por enquanto comentado
 *.log
 .vscode/
 .idea/
@@ -120,7 +144,7 @@ const app = express();
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send("API rodando ");
+  res.send("API rodando");
 });
 
 const PORT = process.env.PORT || 3000;
@@ -132,21 +156,42 @@ app.listen(PORT, () => {
 
 ---
 
-## Próximos passos do projeto
+## Funcionalidades do sistema
 
-* [ ] Configurar TypeORM + MySQL
-* [ ] Criar autenticação JWT
-* [ ] Implementar bcrypt para senhas
-* [ ] Criar estrutura MVC (controllers/services/routes)
-* [ ] Adicionar validação com Joi
-* [ ] Configurar logs com Winston
-* [ ] Criar middleware de segurança (Helmet + CORS + Rate Limit)
+### Usuários
+- Criar usuário
+- Login JWT
+- Controle de perfil (admin / usuário)
+
+### Espaços
+- Criar espaços (sala, laboratório, auditório)
+- Listar espaços ativos
+- Atualizar e deletar
+
+### Reservas
+- Criar reservas de espaços
+- Cancelar reservas
+- Consultar reservas com relacionamentos
+
+### Histórico de Reservas
+- Registro automático de ações
+- Auditoria de mudanças
 
 ---
 
-## Observações importantes
+## Segurança implementada
 
-* Nunca subir `node_modules` para o Git
-* Nunca subir `.env` (contém dados sensíveis)
-* Use sempre `npm install` para recriar dependências
-* Use `npm
+- Senhas criptografadas com bcrypt
+- Autenticação JWT
+- Não expõe senha no retorno
+- Variáveis sensíveis via .env
+- Controle de perfil
+
+---
+
+## Próximos passos
+
+- Controllers
+- Middleware JWT
+- Validação
+- Error handler global
