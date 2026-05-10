@@ -2,9 +2,9 @@ import { Router } from "express";
 
 import { AuthController } from "../controllers/AuthController";
 
-import usuarioRoutes from "./usuarioRoutes";
-import reservaRoutes from "./reservaRoutes";
-import espacoRoutes from "./espacoRoutes";
+import usuarioRoutes from "./UsuarioRoutes";
+import reservaRoutes from "./ReservaRoutes";
+import espacoRoutes from "./EspacoRoutes";
 import historicoReservaRoutes from "./HistoricoReservaRoutes";
 
 import { autenticar } from "../middlewares/authMiddleware";
