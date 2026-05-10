@@ -5,7 +5,7 @@ import { AuthController } from "../controllers/AuthController";
 import usuarioRoutes from "./usuarioRoutes";
 import reservaRoutes from "./reservaRoutes";
 import espacoRoutes from "./espacoRoutes";
-import historicoReservaRoutes from "./historicoReservaRoutes";
+import historicoReservaRoutes from "./HistoricoReservaRoutes";
 
 import { autenticar } from "../middlewares/authMiddleware";
 import { exigirPerfil } from "../middlewares/perfilMiddleware";
