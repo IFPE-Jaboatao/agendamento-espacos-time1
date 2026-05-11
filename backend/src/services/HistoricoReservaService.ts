@@ -1,66 +1,94 @@
 import { AppDataSource } from "../data-source";
-import { HistoricoReserva } from "../entities/HistoricoReserva";
+import { HistoricoReserva, StatusHistorico } from "../entities/HistoricoReserva";
+import { Perfil, Usuario } from "../entities/Usuario";
 
-// Repositório de histórico (audit log)
+// Repositório de histórico (auditoria)
 const repo = AppDataSource.getRepository(HistoricoReserva);
 
 /**
- * Registra todas as mudanças de reservas
- * (auditoria do sistema)
+ * Service de auditoria do sistema
  */
 export class HistoricoReservaService {
 
   /**
-   * Lista histórico completo
+   * LISTAR HISTÓRICO
+   * Regra:
+   * - ADMIN vê tudo
+   * - USUÁRIO vê apenas seus registros
    */
-  async listarTodos() {
+  async listarComPermissao(usuario: Usuario) {
+
+    if (usuario.perfil === Perfil.ADMIN) {
+      return repo.find({ relations: ["reserva", "usuario"] });
+    }
+
     return repo.find({
+      where: { usuario: { id: usuario.id } },
       relations: ["reserva", "usuario"]
     });
   }
 
   /**
-   * Busca histórico por ID
+   * BUSCAR POR ID
+   * Regra: acesso restrito ao dono ou admin
    */
-  async buscarPorId(id: number) {
-    return repo.findOne({
+  async buscarPorId(id: number, usuario: Usuario) {
+
+    const historico = await repo.findOne({
       where: { id },
       relations: ["reserva", "usuario"]
     });
+
+    if (!historico) throw new Error("Histórico não encontrado");
+
+    if (
+      usuario.perfil !== Perfil.ADMIN &&
+      historico.usuario.id !== usuario.id
+    ) {
+      throw new Error("Sem permissão");
+    }
+
+    return historico;
   }
 
   /**
-   * Cria registro manual de histórico
+   * CRIAR HISTÓRICO MANUAL
    */
   async criar(dados: Partial<HistoricoReserva>) {
-    const historico = repo.create(dados);
-    return repo.save(historico);
+    return repo.save(repo.create(dados));
   }
 
   /**
-   * Cria histórico automático vindo da ReservaService
+   * CRIAR HISTÓRICO AUTOMÁTICO
+   * Regra: usado pelo sistema de reservas
    */
   async criarEntradaAutomatica(params: {
     reservaId: number;
     usuarioId: number;
-    status: any;
+    status: StatusHistorico;
     descricao?: string;
   }) {
 
-    const historico = repo.create({
-      reserva: { id: params.reservaId } as any,
-      usuario: { id: params.usuarioId } as any,
-      status: params.status,
-      descricao: params.descricao
-    });
-
-    return repo.save(historico);
+    return repo.save(
+      repo.create({
+        reserva: { id: params.reservaId },
+        usuario: { id: params.usuarioId },
+        status: params.status,
+        descricao: params.descricao
+      })
+    );
   }
 
   /**
-   * Remove histórico (uso administrativo)
+   * DELETAR HISTÓRICO
+   * Regra: apenas ADMIN pode remover
    */
-  async deletar(id: number) {
+  async deletar(id: number, usuario: Usuario) {
+
+    if (usuario.perfil !== Perfil.ADMIN) {
+      throw new Error("Apenas admin pode remover histórico");
+    }
+
     return repo.delete(id);
   }
 }

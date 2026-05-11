@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { DataSource } from "typeorm";
 import dotenv from "dotenv";
 
-// Carrega variáveis do .env ANTES de tudo
+// Carrega variáveis de ambiente antes de qualquer coisa
 dotenv.config();
 
 // Importação das entidades do sistema
@@ -12,23 +12,29 @@ import { Espaco } from "./entities/Espaco";
 import { HistoricoReserva } from "./entities/HistoricoReserva";
 
 /**
- * Configuração principal de conexão com o banco de dados
- * TypeORM usa isso para criar e gerenciar tabelas
+ * DataSource principal do TypeORM
+ * Responsável pela conexão com o banco e gerenciamento das entidades
  */
 export const AppDataSource = new DataSource({
 
-  // Tipo de banco utilizado
+  /**
+   * Tipo de banco de dados
+   */
   type: "mysql",
 
-  // Dados vindos do .env (evita hardcode)
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT),
+  /**
+   * Configurações seguras com fallback (evita crash se .env estiver incompleto)
+   */
+  host: process.env.DB_HOST || "localhost",
+  port: Number(process.env.DB_PORT) || 3306,
+  username: process.env.DB_USER || "root",
+  password: process.env.DB_PASS || "",
+  database: process.env.DB_NAME || "reservas",
 
-  username: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-
-  // Entidades (tabelas do sistema)
+  /**
+   * Entidades do sistema
+   * (mapeamento das tabelas do banco)
+   */
   entities: [
     Usuario,
     Reserva,
@@ -36,16 +42,30 @@ export const AppDataSource = new DataSource({
     HistoricoReserva
   ],
 
-  // NUNCA usar true em produção
-  // true = altera banco automaticamente (perigoso)
+  /**
+   * MIGRAÇÕES (preparado para evolução do projeto)
+   * Mesmo que ainda não esteja usando, já fica estruturado
+   */
+  migrations: [],
+
+  /**
+   * NUNCA usar true em produção
+   * true = altera banco automaticamente (perigoso)
+   */
   synchronize: false,
 
-  // Ativa logs SQL se DB_LOGGING=true no .env
+  /**
+   * Logs SQL (ativado via .env)
+   */
   logging: process.env.DB_LOGGING === "true",
 
-  // Suporte a acentos, emojis e caracteres especiais
+  /**
+   * Charset para suportar acentos e emojis
+   */
   charset: "utf8mb4",
 
-  // Padroniza horário como UTC (evita bugs de data)
+  /**
+   * Padronização de horário (evita bugs de timezone)
+   */
   timezone: "Z"
 });

@@ -1,74 +1,105 @@
 import { AppDataSource } from "../data-source";
-import { Usuario } from "../entities/Usuario";
+import { Usuario, Perfil } from "../entities/Usuario";
 import { PasswordUtil } from "../utils/PasswordUtil";
 
-// Repositório de usuários
 const repo = AppDataSource.getRepository(Usuario);
 
-// Campos que podem ser retornados (evita senha)
-const selectUsuario = [
-  "id",
-  "nome",
-  "login",
-  "email",
-  "perfil",
-  "criadoEm"
-];
-
 /**
- * CRUD de usuários
+ * Service de usuários
  */
 export class UsuarioService {
 
   /**
-   * Cria usuário
+   * CRIAR USUÁRIO
+   * Regras:
+   * - email único
+   * - login único
+   * - senha criptografada
+   * - perfil padrão USUARIO
    */
   async criar(dados: Partial<Usuario>) {
 
-    // Se tiver senha, aplica hash
-    if (dados.senha) {
-      dados.senha = await PasswordUtil.hash(dados.senha);
-    }
+    const emailExiste = await repo.findOneBy({ email: dados.email! });
+    if (emailExiste) throw new Error("Email já cadastrado");
 
-    const usuario = repo.create(dados);
-    return repo.save(usuario);
+    const loginExiste = await repo.findOneBy({ login: dados.login! });
+    if (loginExiste) throw new Error("Login já cadastrado");
+
+    dados.senha = await PasswordUtil.hash(dados.senha!);
+
+    return repo.save(
+      repo.create({
+        ...dados,
+        perfil: dados.perfil || Perfil.USUARIO
+      })
+    );
   }
 
   /**
-   * Lista usuários sem senha
+   * LISTAR USUÁRIOS (sem senha)
    */
   async listarTodos() {
-    return repo.find({ select: selectUsuario });
-  }
-
-  /**
-   * Busca usuário por ID
-   */
-  async buscarPorId(id: number) {
-    return repo.findOne({
-      where: { id },
-      select: selectUsuario
+    return repo.find({
+      select: {
+        id: true,
+        nome: true,
+        login: true,
+        email: true,
+        perfil: true,
+        tipoUsuario: true,
+        criadoEm: true
+      }
     });
   }
 
   /**
-   * Atualiza usuário
+   * BUSCAR POR ID (sem senha)
+   */
+  async buscarPorId(id: number) {
+
+    const usuario = await repo.findOne({
+      where: { id },
+      select: {
+        id: true,
+        nome: true,
+        login: true,
+        email: true,
+        perfil: true,
+        tipoUsuario: true,
+        criadoEm: true
+      }
+    });
+
+    if (!usuario) throw new Error("Usuário não encontrado");
+
+    return usuario;
+  }
+
+  /**
+   * ATUALIZAR USUÁRIO
    */
   async atualizar(id: number, dados: Partial<Usuario>) {
 
-    // Se atualizar senha, recriptografa
+    const usuario = await repo.findOneBy({ id });
+    if (!usuario) throw new Error("Usuário não encontrado");
+
     if (dados.senha) {
       dados.senha = await PasswordUtil.hash(dados.senha);
     }
 
     await repo.update(id, dados);
+
     return this.buscarPorId(id);
   }
 
   /**
-   * Remove usuário
+   * DELETAR USUÁRIO
    */
   async deletar(id: number) {
+
+    const usuario = await repo.findOneBy({ id });
+    if (!usuario) throw new Error("Usuário não encontrado");
+
     return repo.delete(id);
   }
 }
