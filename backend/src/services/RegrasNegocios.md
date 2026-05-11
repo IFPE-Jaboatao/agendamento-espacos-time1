@@ -1,4 +1,4 @@
-# 📌 Regras de Negócio - Sistema de Reservas
+# Regras de Negócio - Sistema de Agendamento e Gestão de Espaços
 
 ---
 
@@ -7,20 +7,20 @@
 ### 1.1 Login
 - Usuário deve existir no sistema
 - Senha deve ser válida (comparação com hash)
-- Login inválido bloqueia acesso
+- Login inválido bloqueia acesso (mensagem genérica por segurança)
 
 ### 1.2 Segurança
 - Senhas são armazenadas com hash
 - Senhas nunca são retornadas nas respostas
-- Autenticação via JWT
+- Autenticação via JWT obrigatória
 
 ### 1.3 Token
-- Token JWT expira em 8 horas
+- Token JWT expira em **8 horas**
 
 ### 1.4 Cadastro
 - Email deve ser único
 - Login deve ser único
-- Usuário padrão recebe perfil `USUARIO`
+- Perfil sempre é definido como `USUARIO` no cadastro (não pode ser definido pelo cliente)
 
 ---
 
@@ -32,13 +32,14 @@
 - Visualiza todos os históricos
 - Cria, edita e remove espaços
 - Aprova e recusa reservas
+- Pode cancelar qualquer reserva
 
 ### 2.2 USUÁRIO
 - Acessa apenas seus dados
 - Visualiza apenas suas reservas
 - Visualiza apenas seus históricos
 - Pode criar reservas
-- Pode cancelar próprias reservas
+- Pode cancelar apenas suas próprias reservas
 
 ---
 
@@ -56,14 +57,15 @@
 ### 3.3 Regras
 - Apenas espaços ativos podem ser reservados
 - Apenas ADMIN pode gerenciar espaços
+- Espaços com reservas vinculadas não podem ser removidos
 
 ---
 
 ## 4. Reservas
 
 ### 4.1 Criação
-- Data início e fim obrigatórias
-- Data final deve ser maior que inicial
+- Data início e fim são obrigatórias
+- Data final deve ser maior que a inicial
 - Não permite datas no passado
 - Espaço deve existir
 - Espaço deve estar ativo
@@ -74,26 +76,33 @@
 ### 4.3 Status
 - Toda reserva inicia como `PENDENTE`
 - Pode evoluir para:
-  - APROVADA
-  - RECUSADA
-  - CANCELADA
+  - `APROVADA`
+  - `RECUSADA`
+  - `CANCELADA`
+
+> Reservas só podem ser aprovadas ou recusadas se estiverem `PENDENTES`
+
+---
 
 ### 4.4 Cancelamento
 - Usuário pode cancelar sua própria reserva
 - ADMIN pode cancelar qualquer reserva
 - Reserva já cancelada não pode ser cancelada novamente
+- Reservas canceladas não podem ser aprovadas ou recusadas
+
+---
 
 ### 4.5 Aprovação e Recusa
 - Apenas ADMIN pode aprovar ou recusar
-- Reserva cancelada não pode ser alterada
 - Recusa exige motivo obrigatório
+- Reservas já processadas não podem ser alteradas novamente
 
 ---
 
 ## 5. Histórico (Auditoria)
 
 ### 5.1 Regra geral
-- Toda ação relevante gera histórico automático
+- Toda ação relevante gera histórico automaticamente
 
 ### 5.2 Ações registradas
 - Criação de reserva
@@ -118,7 +127,8 @@
 
 - Autenticação via JWT obrigatória
 - Acesso restrito a usuários autenticados
-- Validação de permissões obrigatória em operações críticas
+- Validação de permissões obrigatória em todas as operações críticas
+- Mensagens de erro genéricas para login (evitar enumeração de usuários)
 
 ---
 
@@ -127,7 +137,8 @@
 - Reserva não pode ter datas inválidas
 - Reserva depende de usuário e espaço
 - Histórico depende de reserva e usuário
-- Status inválidos não são permitidos
+- Status inválidos são controlados via enum
+- Não há duplicidade de reservas no mesmo horário
 
 ---
 
@@ -136,7 +147,8 @@
 - Paginação de listas
 - Soft delete
 - Middleware central de autenticação (RBAC)
-- DTOs com validação
+- DTOs com validação (class-validator)
 - Transações no banco
-- Melhor verificação de conflito de horários
+- Melhoria de concorrência no conflito de horários (lock/constraint)
 - Limite de reservas por usuário
+- Sistema de refresh token

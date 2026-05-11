@@ -27,27 +27,40 @@ export class ReservaService {
   async listarTodos(usuario: Usuario) {
 
     if (usuario.perfil === Perfil.ADMIN) {
-      return repo.find({ relations: ["solicitante", "espaco"] });
+      return repo.find({
+        relations: ["solicitante", "espaco"],
+        order: { id: "DESC" }
+      });
     }
 
     return repo.find({
-      where: { solicitante: { id: usuario.id } },
-      relations: ["solicitante", "espaco"]
+      where: {
+        solicitante: { id: usuario.id }
+      },
+      relations: ["solicitante", "espaco"],
+      order: { id: "DESC" }
     });
   }
 
   /**
    * BUSCAR POR ID
-   * Regra: acesso restrito
+   * Regra:
+   * - acesso restrito
    */
   async buscarPorId(id: number, usuario: Usuario) {
+
+    if (!id) {
+      throw new Error("ID obrigatório");
+    }
 
     const reserva = await repo.findOne({
       where: { id },
       relations: ["solicitante", "espaco", "historicos"]
     });
 
-    if (!reserva) throw new Error("Reserva não encontrada");
+    if (!reserva) {
+      throw new Error("Reserva não encontrada");
+    }
 
     if (
       usuario.perfil !== Perfil.ADMIN &&
@@ -61,17 +74,15 @@ export class ReservaService {
 
   /**
    * CRIAR RESERVA
-   * Regras:
-   * - datas obrigatórias
-   * - não pode data inválida
-   * - não pode passado
-   * - espaço deve existir e estar ativo
-   * - não pode conflito de horário
    */
   async criar(dados: Partial<Reserva>) {
 
     if (!dados.dataInicio || !dados.dataFim) {
       throw new Error("Datas obrigatórias");
+    }
+
+    if (!dados.solicitante || !dados.espaco) {
+      throw new Error("Solicitante e espaço obrigatórios");
     }
 
     if (dados.dataFim <= dados.dataInicio) {
@@ -82,18 +93,23 @@ export class ReservaService {
       throw new Error("Não é permitido reservar datas passadas");
     }
 
-    const espaco = await espacoRepo.findOneBy({ id: dados.espaco!.id });
+    // valida espaço
+    const espaco = await espacoRepo.findOneBy({
+      id: dados.espaco.id
+    });
 
-    if (!espaco) throw new Error("Espaço não encontrado");
+    if (!espaco) {
+      throw new Error("Espaço não encontrado");
+    }
 
     if (espaco.status === StatusEspaco.INATIVO) {
       throw new Error("Espaço inativo");
     }
 
-    // Verificação de conflito de horário
+    // conflito de horário
     const conflito = await repo.findOne({
       where: {
-        espaco: { id: dados.espaco!.id },
+        espaco: { id: dados.espaco.id },
         status: Not(StatusReserva.CANCELADA),
         dataInicio: LessThan(dados.dataFim),
         dataFim: MoreThan(dados.dataInicio)
@@ -111,7 +127,7 @@ export class ReservaService {
 
     const saved = await repo.save(reserva);
 
-    // Auditoria automática
+    // auditoria
     await historicoService.criarEntradaAutomatica({
       reservaId: saved.id,
       usuarioId: saved.solicitante.id,
@@ -131,7 +147,19 @@ export class ReservaService {
       throw new Error("Apenas admin pode aprovar");
     }
 
-    await repo.update(id, { status: StatusReserva.APROVADA });
+    const reserva = await repo.findOneBy({ id });
+
+    if (!reserva) {
+      throw new Error("Reserva não encontrada");
+    }
+
+    if (reserva.status !== StatusReserva.PENDENTE) {
+      throw new Error("Reserva já foi processada");
+    }
+
+    await repo.update(id, {
+      status: StatusReserva.APROVADA
+    });
 
     await historicoService.criarEntradaAutomatica({
       reservaId: id,
@@ -150,9 +178,23 @@ export class ReservaService {
       throw new Error("Apenas admin pode recusar");
     }
 
-    if (!motivo) throw new Error("Motivo obrigatório");
+    if (!motivo) {
+      throw new Error("Motivo obrigatório");
+    }
 
-    await repo.update(id, { status: StatusReserva.RECUSADA });
+    const reserva = await repo.findOneBy({ id });
+
+    if (!reserva) {
+      throw new Error("Reserva não encontrada");
+    }
+
+    if (reserva.status !== StatusReserva.PENDENTE) {
+      throw new Error("Reserva já foi processada");
+    }
+
+    await repo.update(id, {
+      status: StatusReserva.RECUSADA
+    });
 
     await historicoService.criarEntradaAutomatica({
       reservaId: id,
@@ -170,13 +212,21 @@ export class ReservaService {
     const reserva = await this.buscarPorId(id, usuario);
 
     if (
+      reserva.status === StatusReserva.CANCELADA
+    ) {
+      throw new Error("Reserva já cancelada");
+    }
+
+    if (
       usuario.perfil !== Perfil.ADMIN &&
       reserva.solicitante.id !== usuario.id
     ) {
       throw new Error("Sem permissão");
     }
 
-    await repo.update(id, { status: StatusReserva.CANCELADA });
+    await repo.update(id, {
+      status: StatusReserva.CANCELADA
+    });
 
     await historicoService.criarEntradaAutomatica({
       reservaId: id,
