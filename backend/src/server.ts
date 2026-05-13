@@ -1,36 +1,35 @@
-import express from "express";
 import dotenv from "dotenv";
+import app from "./app";
 import { AppDataSource } from "./data-source";
 
 dotenv.config();
 
-const app = express();
+const PORT = process.env.PORT;
 
-app.use(express.json());
-
-app.get("/", (req, res) => {
-  res.send("API rodando");
-});
-
-const PORT = process.env.PORT || 3000;
+if (!PORT) {
+  throw new Error("PORT não configurada no .env");
+}
 
 async function startServer() {
+
   try {
-    // conexão REAL com o banco
+
     await AppDataSource.initialize();
 
     console.log("Banco conectado com sucesso");
 
     app.listen(PORT, () => {
-      console.log(`Servidor rodando em http://localhost:${PORT}`);
+      console.log(
+        `Servidor rodando em http://localhost:${PORT}`
+      );
     });
 
   } catch (error: unknown) {
+
     if (error instanceof Error) {
-      console.error("Erro ao conectar no banco:");
       console.error(error.message);
     } else {
-      console.error("Erro desconhecido:", error);
+      console.error(error);
     }
 
     process.exit(1);
