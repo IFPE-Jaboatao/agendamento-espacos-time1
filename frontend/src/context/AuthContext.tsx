@@ -61,7 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Função de Cadastro (Nova)
   async function register(dados: any) {
     // Certifique-se de que a rota no seu backend é /usuarios
-    await api.post("/auth/registrar", dados);
+    await api.post("/auth/register", dados);
   }
 
   // Função de Logout
