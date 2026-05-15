@@ -16,7 +16,7 @@ router.use(authMiddleware);
  * @swagger
  * tags:
  *   name: Reservas
- *   description: Gerenciamento de reservas
+ *   description: Gerenciamento de reservas de espaços
  */
 
 /**
@@ -24,7 +24,42 @@ router.use(authMiddleware);
  * /reservas:
  *   get:
  *     summary: Lista reservas
+ *     description: Retorna todas as reservas do sistema
  *     tags: [Reservas]
+ *
+ *     security:
+ *       - bearerAuth: []
+ *
+ *     responses:
+ *       200:
+ *         description: Lista de reservas retornada com sucesso
+ *
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *
+ *               items:
+ *                 type: object
+ *
+ *                 properties:
+ *                   id:
+ *                     type: number
+ *
+ *                   status:
+ *                     type: string
+ *                     example: PENDENTE
+ *
+ *                   dataInicio:
+ *                     type: string
+ *                     example: 2026-05-15T08:00:00.000Z
+ *
+ *                   dataFim:
+ *                     type: string
+ *                     example: 2026-05-15T10:00:00.000Z
+ *
+ *       401:
+ *         description: Não autorizado
  */
 router.get(
   "/",
@@ -36,7 +71,31 @@ router.get(
  * /reservas/{id}:
  *   get:
  *     summary: Busca reserva por ID
+ *     description: Retorna os dados de uma reserva específica
  *     tags: [Reservas]
+ *
+ *     security:
+ *       - bearerAuth: []
+ *
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *
+ *         schema:
+ *           type: integer
+ *
+ *         description: ID da reserva
+ *
+ *     responses:
+ *       200:
+ *         description: Reserva encontrada
+ *
+ *       401:
+ *         description: Não autorizado
+ *
+ *       404:
+ *         description: Reserva não encontrada
  */
 router.get(
   "/:id",
@@ -47,8 +106,48 @@ router.get(
  * @swagger
  * /reservas:
  *   post:
- *     summary: Cria nova reserva
+ *     summary: Cria uma nova reserva
+ *     description: Cria uma reserva para um espaço
  *     tags: [Reservas]
+ *
+ *     security:
+ *       - bearerAuth: []
+ *
+ *     requestBody:
+ *       required: true
+ *
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *
+ *             required:
+ *               - espacoId
+ *               - dataInicio
+ *               - dataFim
+ *
+ *             properties:
+ *               espacoId:
+ *                 type: number
+ *                 example: 1
+ *
+ *               dataInicio:
+ *                 type: string
+ *                 example: 2026-05-20T08:00:00.000Z
+ *
+ *               dataFim:
+ *                 type: string
+ *                 example: 2026-05-20T10:00:00.000Z
+ *
+ *     responses:
+ *       201:
+ *         description: Reserva criada com sucesso
+ *
+ *       400:
+ *         description: Dados inválidos
+ *
+ *       401:
+ *         description: Não autorizado
  */
 router.post(
   "/",
@@ -59,8 +158,32 @@ router.post(
  * @swagger
  * /reservas/{id}/aprovar:
  *   patch:
- *     summary: Aprova reserva (ADMIN)
+ *     summary: Aprova uma reserva
+ *     description: Aprova uma reserva pendente
  *     tags: [Reservas]
+ *
+ *     security:
+ *       - bearerAuth: []
+ *
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *
+ *         schema:
+ *           type: integer
+ *
+ *         description: ID da reserva
+ *
+ *     responses:
+ *       200:
+ *         description: Reserva aprovada com sucesso
+ *
+ *       401:
+ *         description: Não autorizado
+ *
+ *       404:
+ *         description: Reserva não encontrada
  */
 router.patch(
   "/:id/aprovar",
@@ -71,8 +194,32 @@ router.patch(
  * @swagger
  * /reservas/{id}/recusar:
  *   patch:
- *     summary: Recusa reserva (ADMIN)
+ *     summary: Recusa uma reserva
+ *     description: Recusa uma reserva pendente
  *     tags: [Reservas]
+ *
+ *     security:
+ *       - bearerAuth: []
+ *
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *
+ *         schema:
+ *           type: integer
+ *
+ *         description: ID da reserva
+ *
+ *     responses:
+ *       200:
+ *         description: Reserva recusada com sucesso
+ *
+ *       401:
+ *         description: Não autorizado
+ *
+ *       404:
+ *         description: Reserva não encontrada
  */
 router.patch(
   "/:id/recusar",
@@ -83,8 +230,32 @@ router.patch(
  * @swagger
  * /reservas/{id}/cancelar:
  *   patch:
- *     summary: Cancela reserva
+ *     summary: Cancela uma reserva
+ *     description: Cancela uma reserva existente
  *     tags: [Reservas]
+ *
+ *     security:
+ *       - bearerAuth: []
+ *
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *
+ *         schema:
+ *           type: integer
+ *
+ *         description: ID da reserva
+ *
+ *     responses:
+ *       200:
+ *         description: Reserva cancelada com sucesso
+ *
+ *       401:
+ *         description: Não autorizado
+ *
+ *       404:
+ *         description: Reserva não encontrada
  */
 router.patch(
   "/:id/cancelar",

@@ -1,26 +1,42 @@
 import express from "express";
 import cors from "cors";
-import routes from "./routes";
 
+import swaggerUi from "swagger-ui-express";
+
+import routes from "./routes";
+import { swaggerSpec } from "./docs/swagger";
 
 const app = express();
+
+
+// CORS
+
 app.use(cors());
 
-/**
- * Middleware global
- */
+
+// Middleware global
+
 app.use(express.json());
 
-/**
- * Rota raiz
- */
+
+// Swagger
+
+app.use(
+  "/docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec)
+);
+
+
+// Rota raiz
+
 app.get("/", (req, res) => {
   return res.send("API rodando");
 });
 
-/**
- * Rotas da aplicação
- */
+
+// Rotas da aplicação
+
 app.use("/api", routes);
 
 export default app;
