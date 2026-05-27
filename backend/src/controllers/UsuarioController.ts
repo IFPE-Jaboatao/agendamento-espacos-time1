@@ -14,8 +14,19 @@ export class UsuarioController {
    * GET /usuarios
    */
   async listar(req: Request, res: Response) {
-    const usuarios = await this.service.listarTodos();
-    return res.json(usuarios);
+    try {
+
+      const usuarios = await this.service.listarTodos();
+
+      return res.json(usuarios);
+
+    } catch (err: any) {
+
+      return res.status(400).json({
+        error: err.message
+      });
+
+    }
   }
 
   /**
@@ -37,14 +48,21 @@ export class UsuarioController {
   }
 
   /**
-   * CRIAR USUÁRIO (ADMIN)
-   * POST /usuarios
-   */
+  * CRIAR USUÁRIO (ADMIN)
+  * POST /usuarios
+  */
   async criar(req: Request, res: Response) {
     try {
-      const usuario = await this.service.criar(req.body);
+
+      const admin = req.user;
+
+      const usuario = await this.service.criarPorAdmin(
+        admin.id,
+        req.body
+      );
 
       return res.status(201).json(usuario);
+
     } catch (err: any) {
       return res.status(400).json({
         error: err.message

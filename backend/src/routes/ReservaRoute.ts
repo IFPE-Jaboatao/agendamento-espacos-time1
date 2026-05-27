@@ -53,8 +53,6 @@ router.use(authMiddleware);
  */
 router.get("/", controller.listarReservas.bind(controller));
 
-
-
 /**
  * @swagger
  * /reservas/{id}:
@@ -87,14 +85,12 @@ router.get("/", controller.listarReservas.bind(controller));
  */
 router.get("/:id", controller.buscarReservas.bind(controller));
 
-
-
 /**
  * @swagger
  * /reservas:
  *   post:
- *     summary: Criar reserva
- *     description: Cria uma nova reserva de espaço no sistema
+ *     summary: Cria uma nova reserva
+ *     description: Rota protegida para criação de reservas
  *     tags: [Reservas]
  *
  *     security:
@@ -106,37 +102,55 @@ router.get("/:id", controller.buscarReservas.bind(controller));
  *         application/json:
  *           schema:
  *             type: object
+ *
  *             required:
- *               - espacoId
  *               - dataInicio
  *               - dataFim
+ *               - solicitante_id
+ *               - espaco_id
+ *
  *             properties:
- *               espacoId:
- *                 type: number
- *                 example: 1
  *               dataInicio:
  *                 type: string
- *                 example: 2026-05-20T08:00:00.000Z
+ *                 format: date-time
+ *                 example: 2026-06-01T10:00:00Z
+ *
  *               dataFim:
  *                 type: string
- *                 example: 2026-05-20T10:00:00.000Z
+ *                 format: date-time
+ *                 example: 2026-06-01T12:00:00Z
+ *
+ *               motivo:
+ *                 type: string
+ *                 example: Reunião de projeto
+ *
  *               descricao:
  *                 type: string
- *                 example: Aula de programação
+ *                 example: Reserva para apresentação do TCC
+ *
+ *               solicitante_id:
+ *                 type: number
+ *                 example: 1
+ *                 description: ID do usuário que está solicitando a reserva
+ *
+ *               espaco_id:
+ *                 type: number
+ *                 example: 3
+ *                 description: ID do espaço reservado
  *
  *     responses:
  *       201:
  *         description: Reserva criada com sucesso
- *
  *       400:
- *         description: Erro de validação
- *
+ *         description: Dados inválidos
  *       401:
  *         description: Não autorizado
  */
-router.post("/", controller.criar.bind(controller));
-
-
+router.post(
+  "/",
+  authMiddleware,
+  controller.criar.bind(controller)
+);
 
 /**
  * @swagger
@@ -168,8 +182,6 @@ router.post("/", controller.criar.bind(controller));
  *         description: Não autorizado
  */
 router.patch("/:id/aprovar", controller.aprovarReserva.bind(controller));
-
-
 
 /**
  * @swagger
@@ -215,8 +227,6 @@ router.patch("/:id/aprovar", controller.aprovarReserva.bind(controller));
  */
 router.patch("/:id/recusar", controller.recusarReserva.bind(controller));
 
-
-
 /**
  * @swagger
  * /reservas/{id}/cancelar:
@@ -248,8 +258,6 @@ router.patch("/:id/recusar", controller.recusarReserva.bind(controller));
  */
 router.patch("/:id/cancelar", controller.cancelarReserva.bind(controller));
 
-
-
 /**
  * @swagger
  * /reservas/{id}/log:
@@ -277,8 +285,6 @@ router.patch("/:id/cancelar", controller.cancelarReserva.bind(controller));
  *         description: Reserva não encontrada
  */
 router.get("/:id/log", controller.obterLog.bind(controller));
-
-
 
 /**
  * @swagger

@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { ReservaService } from "../services/ReservaService";
 
-
 /**
  * Controller de reservas
  */
@@ -9,18 +8,27 @@ export class ReservaController {
 
   private service = new ReservaService();
 
-
-
   /**
    * LISTAR RESERVAS
    * GET /reservas
    */
   async listarReservas(req: Request, res: Response) {
-    const reservas = await this.service.listarTodos(req.user);
+  try {
+
+    const reservas = await this.service.listarTodos(
+      req.user
+    );
+
     return res.json(reservas);
+
+  } catch (err: any) {
+
+    return res.status(400).json({
+      error: err.message
+    });
+
   }
-
-
+}
 
   /**
    * BUSCAR POR ID
@@ -39,8 +47,6 @@ export class ReservaController {
       });
     }
   }
-
-
 
   /**
    * CRIAR RESERVA
@@ -63,8 +69,6 @@ export class ReservaController {
     }
   }
 
-
-
   /**
    * APROVAR RESERVA
    * PATCH /reservas/:id/aprovar
@@ -73,9 +77,13 @@ export class ReservaController {
     try {
       const id = Number(req.params.id);
 
-      await this.service.aprovar(id, req.user);
+      const result = await this.service.aprovar(
+        id,
+        req.user
+      );
 
-      return res.json({ message: "Reserva aprovada" });
+      return res.json(result);
+
     } catch (err: any) {
       return res.status(400).json({
         error: err.message
@@ -83,8 +91,6 @@ export class ReservaController {
     }
   }
 
-
-  
   /**
    * RECUSAR RESERVA
    * PATCH /reservas/:id/recusar
@@ -95,16 +101,20 @@ export class ReservaController {
 
       const { motivo } = req.body;
 
-      await this.service.recusar(id, motivo, req.user);
+      const result = await this.service.recusar(
+        id,
+        motivo,
+        req.user
+      );
 
-      return res.json({ message: "Reserva recusada" });
+      return res.json(result);
+
     } catch (err: any) {
       return res.status(400).json({
         error: err.message
       });
     }
   }
-
 
   /**
    * CANCELAR RESERVA
@@ -114,17 +124,19 @@ export class ReservaController {
     try {
       const id = Number(req.params.id);
 
-      await this.service.cancelar(id, req.user);
+      const result = await this.service.cancelar(
+        id,
+        req.user
+      );
 
-      return res.json({ message: "Reserva cancelada" });
+      return res.json(result);
+
     } catch (err: any) {
       return res.status(400).json({
         error: err.message
       });
     }
   }
-
-
 
   /**
    * HISTÓRICO (LOG DA RESERVA)
@@ -141,8 +153,6 @@ export class ReservaController {
       return res.status(404).json({ error: err.message });
     }
   }
-
-
 
   /**
   * HISTÓRICO POR PERÍODO

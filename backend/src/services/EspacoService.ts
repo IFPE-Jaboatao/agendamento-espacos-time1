@@ -1,9 +1,11 @@
 import { AppDataSource } from "../data-source";
 import { Espaco, StatusEspaco } from "../entities/Espaco";
 import { Perfil, Usuario } from "../entities/Usuario";
+import { Reserva } from "../entities/Reserva";
 
-// Repositório de espaços
+// Repositórios
 const repo = AppDataSource.getRepository(Espaco);
+const reservaRepo = AppDataSource.getRepository(Reserva);
 
 /**
  * Service de espaços físicos
@@ -11,12 +13,18 @@ const repo = AppDataSource.getRepository(Espaco);
 export class EspacoService {
 
   /**
+   * Helper - valida admin
+   */
+  private validarAdmin(usuario: Usuario) {
+    if (usuario.perfil !== Perfil.ADMIN) {
+      throw new Error("Apenas admin pode executar esta ação");
+    }
+  }
+
+  /**
    * LISTAR ESPAÇOS ATIVOS
-   * Regra:
-   * - retorna apenas espaços ativos
    */
   async listarTodos() {
-
     return repo.find({
       where: {
         status: StatusEspaco.ATIVO
@@ -29,8 +37,6 @@ export class EspacoService {
 
   /**
    * BUSCAR ESPAÇO POR ID
-   * Regra:
-   * - inclui reservas relacionadas
    */
   async buscarPorId(id: number) {
 
@@ -52,20 +58,14 @@ export class EspacoService {
 
   /**
    * CRIAR ESPAÇO
-   * Regra:
-   * - apenas ADMIN pode criar
    */
   async criar(
     dados: Partial<Espaco>,
     usuario: Usuario
   ) {
 
-    // Permissão
-    if (usuario.perfil !== Perfil.ADMIN) {
-      throw new Error("Apenas admin pode criar espaços");
-    }
+    this.validarAdmin(usuario);
 
-    // Validações básicas
     if (!dados.nome) {
       throw new Error("Nome obrigatório");
     }
@@ -74,11 +74,15 @@ export class EspacoService {
       throw new Error("Tipo obrigatório");
     }
 
-    if (!dados.capacidade || dados.capacidade <= 0) {
+    if (dados.capacidade === undefined || dados.capacidade <= 0) {
       throw new Error("Capacidade inválida");
     }
 
-    // Cria espaço
+    const existe = await repo.findOneBy({ nome: dados.nome });
+    if (existe) {
+      throw new Error("Já existe um espaço com esse nome");
+    }
+
     const espaco = repo.create({
       ...dados,
       status: dados.status || StatusEspaco.ATIVO
@@ -88,25 +92,18 @@ export class EspacoService {
   }
 
   /**
-   * ATUALIZAR ESPAÇO
-   * Regra:
-   * - apenas ADMIN pode atualizar
-   */
+  * ATUALIZAR ESPAÇO
+  */
   async atualizar(
     id: number,
     dados: Partial<Espaco>,
     usuario: Usuario
   ) {
 
-    // Permissão
-    if (usuario.perfil !== Perfil.ADMIN) {
-      throw new Error("Apenas admin pode atualizar espaços");
-    }
+    this.validarAdmin(usuario);
 
-    // Busca espaço
     const espaco = await this.buscarPorId(id);
 
-    // Validação de capacidade
     if (
       dados.capacidade !== undefined &&
       dados.capacidade <= 0
@@ -114,7 +111,23 @@ export class EspacoService {
       throw new Error("Capacidade inválida");
     }
 
-    // Atualiza
+    if (dados.nome !== undefined && dados.nome.trim() === "") {
+      throw new Error("Nome inválido");
+    }
+
+    if (
+      dados.nome &&
+      dados.nome !== espaco.nome
+    ) {
+      const nomeExiste = await repo.findOneBy({
+        nome: dados.nome
+      });
+
+      if (nomeExiste) {
+        throw new Error("Já existe um espaço com esse nome");
+      }
+    }
+
     await repo.update(id, {
       nome: dados.nome ?? espaco.nome,
       tipo: dados.tipo ?? espaco.tipo,
@@ -127,28 +140,24 @@ export class EspacoService {
 
   /**
    * DELETAR ESPAÇO
-   * Regra:
-   * - apenas ADMIN pode remover
-   * - não remove espaço com reservas
    */
   async deletar(
     id: number,
     usuario: Usuario
   ) {
 
-    // Permissão
-    if (usuario.perfil !== Perfil.ADMIN) {
-      throw new Error("Apenas admin pode remover espaços");
-    }
+    this.validarAdmin(usuario);
 
-    // Busca espaço
     const espaco = await this.buscarPorId(id);
 
-    // Impede remoção com reservas
-    if (espaco.reservas && espaco.reservas.length > 0) {
-      throw new Error(
-        "Não é permitido remover espaço com reservas vinculadas"
-      );
+    const reservasAtivas = await reservaRepo.count({
+      where: {
+        espaco: { id },
+      }
+    });
+
+    if (reservasAtivas > 0) {
+      throw new Error("Não é permitido remover espaço com reservas vinculadas");
     }
 
     return repo.delete(id);

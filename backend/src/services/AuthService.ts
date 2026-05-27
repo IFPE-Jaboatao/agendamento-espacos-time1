@@ -1,5 +1,5 @@
 import { AppDataSource } from "../data-source";
-import { Usuario, Perfil } from "../entities/Usuario";
+import { Usuario, Perfil, TipoUsuario } from "../entities/Usuario";
 import jwt from "jsonwebtoken";
 import { PasswordUtil } from "../utils/PasswordUtil";
 
@@ -13,10 +13,6 @@ export class AuthService {
 
   /**
    * LOGIN DO USUÁRIO
-   * Regras:
-   * - usuário deve existir
-   * - senha deve ser válida
-   * - gera JWT com expiração de 8h
    */
   async login(login: string, senha: string) {
 
@@ -30,10 +26,6 @@ export class AuthService {
       where: { login }
     });
 
-    /**
-     * Mensagem genérica para evitar
-     * enumeração de usuários
-     */
     if (!usuario) {
       throw new Error("Login ou senha inválidos");
     }
@@ -66,18 +58,14 @@ export class AuthService {
         id: usuario.id,
         nome: usuario.nome,
         email: usuario.email,
-        perfil: usuario.perfil
+        perfil: usuario.perfil,
+        tipoUsuario: usuario.tipoUsuario
       }
     };
   }
 
   /**
    * REGISTRO DE USUÁRIO
-   * Regras:
-   * - email único
-   * - login único
-   * - senha criptografada
-   * - perfil sempre USUARIO
    */
   async registrar(dados: Partial<Usuario>) {
 
@@ -98,7 +86,6 @@ export class AuthService {
       throw new Error("Senha obrigatória");
     }
 
-    // Verifica email duplicado
     const emailExiste = await repo.findOneBy({
       email: dados.email
     });
@@ -107,7 +94,6 @@ export class AuthService {
       throw new Error("Email já cadastrado");
     }
 
-    // Verifica login duplicado
     const loginExiste = await repo.findOneBy({
       login: dados.login
     });
@@ -125,7 +111,8 @@ export class AuthService {
       email: dados.email,
       login: dados.login,
       senha: senhaHash,
-      perfil: Perfil.USUARIO
+      perfil: Perfil.USUARIO,
+      tipoUsuario: TipoUsuario.ALUNO
     });
 
     // Salva usuário
@@ -137,7 +124,8 @@ export class AuthService {
       nome: saved.nome,
       email: saved.email,
       login: saved.login,
-      perfil: saved.perfil
+      perfil: saved.perfil,
+      tipoUsuario: saved.tipoUsuario
     };
   }
 }

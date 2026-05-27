@@ -2,7 +2,7 @@ import { AppDataSource } from "../data-source";
 import { Reserva, StatusReserva } from "../entities/Reserva";
 import { Perfil, Usuario } from "../entities/Usuario";
 import { Espaco, StatusEspaco } from "../entities/Espaco";
-import { LessThan, MoreThan, Not, Between } from "typeorm";
+import { LessThan, MoreThan, Not, Between, In } from "typeorm";
 
 // Repositórios
 const repo = AppDataSource.getRepository(Reserva);
@@ -88,7 +88,10 @@ export class ReservaService {
     const conflito = await repo.findOne({
       where: {
         espaco: { id: dados.espaco.id },
-        status: Not(StatusReserva.CANCELADA),
+        status: In([
+          StatusReserva.PENDENTE,
+          StatusReserva.APROVADA
+        ]),
         dataInicio: LessThan(dados.dataFim),
         dataFim: MoreThan(dados.dataInicio)
       }
@@ -123,14 +126,15 @@ export class ReservaService {
       throw new Error("Reserva já foi processada");
     }
 
-    // 🔥 LOG SEGURO (SEM DEPENDER DE STATE ANTIGO)
     const novoLog = [...(reserva.log ?? [])];
     novoLog.push(`Aprovada por ${usuario.id}`);
 
     await repo.save({
       ...reserva,
       status: StatusReserva.APROVADA,
+      aprovador: usuario,
       log: novoLog,
+      dataAprovacao: new Date(),
       dataDecisao: new Date()
     });
 
@@ -161,7 +165,9 @@ export class ReservaService {
     await repo.save({
       ...reserva,
       status: StatusReserva.RECUSADA,
+      aprovador: usuario,
       log: novoLog,
+      dataRecusa: new Date(),
       dataDecisao: new Date()
     });
 
@@ -193,6 +199,7 @@ export class ReservaService {
       ...reserva,
       status: StatusReserva.CANCELADA,
       log: novoLog,
+      dataCancelamento: new Date(),
       dataDecisao: new Date()
     });
 

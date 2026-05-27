@@ -13,8 +13,19 @@ export class EspacoController {
    * GET /espacos
    */
   async listar(req: Request, res: Response) {
-    const espacos = await this.service.listarTodos();
-    return res.json(espacos);
+    try {
+
+      const espacos = await this.service.listarTodos();
+
+      return res.json(espacos);
+
+    } catch (err: any) {
+
+      return res.status(400).json({
+        error: err.message
+      });
+
+    }
   }
 
   /**
