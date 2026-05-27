@@ -2,27 +2,25 @@ import { AppDataSource } from "../data-source";
 import { Reserva, StatusReserva } from "../entities/Reserva";
 import { Perfil, Usuario } from "../entities/Usuario";
 import { Espaco, StatusEspaco } from "../entities/Espaco";
-import { StatusHistorico } from "../entities/HistoricoReserva";
 import { LessThan, MoreThan, Not } from "typeorm";
-import { HistoricoReservaService } from "./HistoricoReservaService";
+
+
 
 // Repositórios
 const repo = AppDataSource.getRepository(Reserva);
 const espacoRepo = AppDataSource.getRepository(Espaco);
 
-// Serviço de histórico (auditoria)
-const historicoService = new HistoricoReservaService();
+
 
 /**
- * Service de reservas
+Service de reservas
  */
 export class ReservaService {
 
+
+  
   /**
    * LISTAR RESERVAS
-   * Regra:
-   * - ADMIN vê todas
-   * - USUÁRIO vê apenas as próprias
    */
   async listarTodos(usuario: Usuario) {
 
@@ -42,10 +40,10 @@ export class ReservaService {
     });
   }
 
+
+
   /**
    * BUSCAR POR ID
-   * Regra:
-   * - acesso restrito
    */
   async buscarPorId(id: number, usuario: Usuario) {
 
@@ -55,7 +53,7 @@ export class ReservaService {
 
     const reserva = await repo.findOne({
       where: { id },
-      relations: ["solicitante", "espaco", "historicos"]
+      relations: ["solicitante", "espaco"]
     });
 
     if (!reserva) {
@@ -71,6 +69,8 @@ export class ReservaService {
 
     return reserva;
   }
+
+
 
   /**
    * CRIAR RESERVA
@@ -94,6 +94,10 @@ export class ReservaService {
     }
 
     // valida espaço
+    if (!dados.espaco?.id) {
+      throw new Error("Espaço inválido");
+    }
+
     const espaco = await espacoRepo.findOneBy({
       id: dados.espaco.id
     });
@@ -122,21 +126,14 @@ export class ReservaService {
 
     const reserva = repo.create({
       ...dados,
-      status: StatusReserva.PENDENTE
+      status: StatusReserva.PENDENTE,
+      log: "Reserva criada"
     });
 
-    const saved = await repo.save(reserva);
-
-    // auditoria
-    await historicoService.criarEntradaAutomatica({
-      reservaId: saved.id,
-      usuarioId: saved.solicitante.id,
-      status: StatusHistorico.PENDENTE,
-      descricao: "Reserva criada"
-    });
-
-    return saved;
+    return await repo.save(reserva);
   }
+
+
 
   /**
    * APROVAR RESERVA
@@ -158,16 +155,15 @@ export class ReservaService {
     }
 
     await repo.update(id, {
-      status: StatusReserva.APROVADA
+      status: StatusReserva.APROVADA,
+      log: `Aprovada por ${usuario.id}`,
+      dataDecisao: new Date()
     });
 
-    await historicoService.criarEntradaAutomatica({
-      reservaId: id,
-      usuarioId: usuario.id,
-      status: StatusHistorico.APROVADA,
-      descricao: "Reserva aprovada"
-    });
+    return { message: "Reserva aprovada" };
   }
+
+
 
   /**
    * RECUSAR RESERVA
@@ -193,16 +189,14 @@ export class ReservaService {
     }
 
     await repo.update(id, {
-      status: StatusReserva.RECUSADA
+      status: StatusReserva.RECUSADA,
+      log: `Recusada: ${motivo}`,
+      dataDecisao: new Date()
     });
-
-    await historicoService.criarEntradaAutomatica({
-      reservaId: id,
-      usuarioId: usuario.id,
-      status: StatusHistorico.RECUSADA,
-      descricao: motivo
-    });
+    return { message: "Reserva recusada" };
   }
+
+
 
   /**
    * CANCELAR RESERVA
@@ -211,28 +205,40 @@ export class ReservaService {
 
     const reserva = await this.buscarPorId(id, usuario);
 
-    if (
-      reserva.status === StatusReserva.CANCELADA
-    ) {
-      throw new Error("Reserva já cancelada");
-    }
+    const isOwner = reserva.solicitante.id === usuario.id;
+    const isAdmin = usuario.perfil === Perfil.ADMIN;
 
-    if (
-      usuario.perfil !== Perfil.ADMIN &&
-      reserva.solicitante.id !== usuario.id
-    ) {
+    if (!isOwner && !isAdmin) {
       throw new Error("Sem permissão");
     }
 
-    await repo.update(id, {
-      status: StatusReserva.CANCELADA
-    });
+    if (reserva.status === StatusReserva.CANCELADA) {
+      throw new Error("Reserva já cancelada");
+    }
 
-    await historicoService.criarEntradaAutomatica({
-      reservaId: id,
-      usuarioId: usuario.id,
-      status: StatusHistorico.CANCELADA,
-      descricao: "Reserva cancelada"
+    await repo.update(id, {
+      status: StatusReserva.CANCELADA,
+      log: `Reserva cancelada pelo usuário ${usuario.id}`,
+      dataDecisao: new Date()
     });
+    return { message: "Reserva cancelada" };
+  }
+
+
+
+  /**
+   * OBTER LOG / DETALHES
+   */
+  async obterLog(id: number, usuario: Usuario) {
+  const reserva = await this.buscarPorId(id, usuario);
+
+    return {
+      id: reserva.id,
+      status: reserva.status,
+      descricao: reserva.descricao,
+      log: reserva.log,
+      dataCriacao: reserva.dataCriacao,
+      dataDecisao: reserva.dataDecisao
+    };
   }
 }

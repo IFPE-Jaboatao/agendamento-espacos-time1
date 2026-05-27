@@ -7,7 +7,6 @@ import {
 } from "typeorm";
 
 import { Reserva } from "./Reserva";
-import { HistoricoReserva } from "./HistoricoReserva";
 
 export enum Perfil {
   ADMIN = "admin",
@@ -55,9 +54,11 @@ export class Usuario {
   @CreateDateColumn({ name: "criado_em" })
   criadoEm!: Date;
 
+  // reservas que o usuário solicitou
   @OneToMany(() => Reserva, (reserva) => reserva.solicitante)
-  reservas?: Reserva[];
+  reservasSolicitadas!: Reserva[];
 
-  @OneToMany(() => HistoricoReserva, (historico) => historico.usuario)
-  historicos?: HistoricoReserva[];
+  // reservas que o usuário aprovou (se for admin)
+  @OneToMany(() => Reserva, (reserva) => reserva.aprovador)
+  reservasAprovadas!: Reserva[];
 }
