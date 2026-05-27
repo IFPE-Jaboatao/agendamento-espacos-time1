@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { ReservaService } from "../services/ReservaService";
 
+
 /**
  * Controller de reservas
  */
@@ -8,20 +9,24 @@ export class ReservaController {
 
   private service = new ReservaService();
 
+
+
   /**
    * LISTAR RESERVAS
    * GET /reservas
    */
-  async listar(req: Request, res: Response) {
+  async listarReservas(req: Request, res: Response) {
     const reservas = await this.service.listarTodos(req.user);
     return res.json(reservas);
   }
+
+
 
   /**
    * BUSCAR POR ID
    * GET /reservas/:id
    */
-  async buscar(req: Request, res: Response) {
+  async buscarReservas(req: Request, res: Response) {
     try {
       const id = Number(req.params.id);
 
@@ -34,6 +39,8 @@ export class ReservaController {
       });
     }
   }
+
+
 
   /**
    * CRIAR RESERVA
@@ -56,11 +63,13 @@ export class ReservaController {
     }
   }
 
+
+
   /**
    * APROVAR RESERVA
    * PATCH /reservas/:id/aprovar
    */
-  async aprovar(req: Request, res: Response) {
+  async aprovarReserva(req: Request, res: Response) {
     try {
       const id = Number(req.params.id);
 
@@ -74,11 +83,13 @@ export class ReservaController {
     }
   }
 
+
+  
   /**
    * RECUSAR RESERVA
    * PATCH /reservas/:id/recusar
    */
-  async recusar(req: Request, res: Response) {
+  async recusarReserva(req: Request, res: Response) {
     try {
       const id = Number(req.params.id);
 
@@ -94,17 +105,61 @@ export class ReservaController {
     }
   }
 
+
   /**
    * CANCELAR RESERVA
    * PATCH /reservas/:id/cancelar
    */
-  async cancelar(req: Request, res: Response) {
+  async cancelarReserva(req: Request, res: Response) {
     try {
       const id = Number(req.params.id);
 
       await this.service.cancelar(id, req.user);
 
       return res.json({ message: "Reserva cancelada" });
+    } catch (err: any) {
+      return res.status(400).json({
+        error: err.message
+      });
+    }
+  }
+
+
+
+  /**
+   * HISTÓRICO (LOG DA RESERVA)
+   * GET /historico/:id
+   */
+  async obterLog(req: Request, res: Response) {
+    try {
+      const id = Number(req.params.id);
+
+      const log = await this.service.obterLog(id, req.user);
+
+      return res.json(log);
+    } catch (err: any) {
+      return res.status(404).json({ error: err.message });
+    }
+  }
+
+
+
+  /**
+  * HISTÓRICO POR PERÍODO
+  * GET /reservas/historico?inicio=...&fim=...
+  */
+  async historicoPeriodo(req: Request, res: Response) {
+    try {
+      const { inicio, fim } = req.query;
+
+      const reservas = await this.service.historicoPorPeriodo(
+        new Date(inicio as string),
+        new Date(fim as string),
+        req.user
+      );
+
+      return res.json(reservas);
+
     } catch (err: any) {
       return res.status(400).json({
         error: err.message

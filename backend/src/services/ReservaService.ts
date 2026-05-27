@@ -2,23 +2,17 @@ import { AppDataSource } from "../data-source";
 import { Reserva, StatusReserva } from "../entities/Reserva";
 import { Perfil, Usuario } from "../entities/Usuario";
 import { Espaco, StatusEspaco } from "../entities/Espaco";
-import { LessThan, MoreThan, Not } from "typeorm";
-
-
+import { LessThan, MoreThan, Not, Between } from "typeorm";
 
 // Repositórios
 const repo = AppDataSource.getRepository(Reserva);
 const espacoRepo = AppDataSource.getRepository(Espaco);
 
-
-
 /**
-Service de reservas
+ * Service de reservas
  */
 export class ReservaService {
 
-
-  
   /**
    * LISTAR RESERVAS
    */
@@ -32,33 +26,25 @@ export class ReservaService {
     }
 
     return repo.find({
-      where: {
-        solicitante: { id: usuario.id }
-      },
+      where: { solicitante: { id: usuario.id } },
       relations: ["solicitante", "espaco"],
       order: { id: "DESC" }
     });
   }
-
-
 
   /**
    * BUSCAR POR ID
    */
   async buscarPorId(id: number, usuario: Usuario) {
 
-    if (!id) {
-      throw new Error("ID obrigatório");
-    }
+    if (!id) throw new Error("ID obrigatório");
 
     const reserva = await repo.findOne({
       where: { id },
       relations: ["solicitante", "espaco"]
     });
 
-    if (!reserva) {
-      throw new Error("Reserva não encontrada");
-    }
+    if (!reserva) throw new Error("Reserva não encontrada");
 
     if (
       usuario.perfil !== Perfil.ADMIN &&
@@ -70,8 +56,6 @@ export class ReservaService {
     return reserva;
   }
 
-
-
   /**
    * CRIAR RESERVA
    */
@@ -81,7 +65,7 @@ export class ReservaService {
       throw new Error("Datas obrigatórias");
     }
 
-    if (!dados.solicitante || !dados.espaco) {
+    if (!dados.solicitante || !dados.espaco?.id) {
       throw new Error("Solicitante e espaço obrigatórios");
     }
 
@@ -93,24 +77,14 @@ export class ReservaService {
       throw new Error("Não é permitido reservar datas passadas");
     }
 
-    // valida espaço
-    if (!dados.espaco?.id) {
-      throw new Error("Espaço inválido");
-    }
+    const espaco = await espacoRepo.findOneBy({ id: dados.espaco.id });
 
-    const espaco = await espacoRepo.findOneBy({
-      id: dados.espaco.id
-    });
-
-    if (!espaco) {
-      throw new Error("Espaço não encontrado");
-    }
+    if (!espaco) throw new Error("Espaço não encontrado");
 
     if (espaco.status === StatusEspaco.INATIVO) {
       throw new Error("Espaço inativo");
     }
 
-    // conflito de horário
     const conflito = await repo.findOne({
       where: {
         espaco: { id: dados.espaco.id },
@@ -127,13 +101,11 @@ export class ReservaService {
     const reserva = repo.create({
       ...dados,
       status: StatusReserva.PENDENTE,
-      log: "Reserva criada"
+      log: ["Reserva criada"]
     });
 
     return await repo.save(reserva);
   }
-
-
 
   /**
    * APROVAR RESERVA
@@ -145,25 +117,25 @@ export class ReservaService {
     }
 
     const reserva = await repo.findOneBy({ id });
-
-    if (!reserva) {
-      throw new Error("Reserva não encontrada");
-    }
+    if (!reserva) throw new Error("Reserva não encontrada");
 
     if (reserva.status !== StatusReserva.PENDENTE) {
       throw new Error("Reserva já foi processada");
     }
 
-    await repo.update(id, {
+    // 🔥 LOG SEGURO (SEM DEPENDER DE STATE ANTIGO)
+    const novoLog = [...(reserva.log ?? [])];
+    novoLog.push(`Aprovada por ${usuario.id}`);
+
+    await repo.save({
+      ...reserva,
       status: StatusReserva.APROVADA,
-      log: `Aprovada por ${usuario.id}`,
+      log: novoLog,
       dataDecisao: new Date()
     });
 
     return { message: "Reserva aprovada" };
   }
-
-
 
   /**
    * RECUSAR RESERVA
@@ -174,29 +146,27 @@ export class ReservaService {
       throw new Error("Apenas admin pode recusar");
     }
 
-    if (!motivo) {
-      throw new Error("Motivo obrigatório");
-    }
+    if (!motivo) throw new Error("Motivo obrigatório");
 
     const reserva = await repo.findOneBy({ id });
-
-    if (!reserva) {
-      throw new Error("Reserva não encontrada");
-    }
+    if (!reserva) throw new Error("Reserva não encontrada");
 
     if (reserva.status !== StatusReserva.PENDENTE) {
       throw new Error("Reserva já foi processada");
     }
 
-    await repo.update(id, {
+    const novoLog = [...(reserva.log ?? [])];
+    novoLog.push(`Recusada: ${motivo}`);
+
+    await repo.save({
+      ...reserva,
       status: StatusReserva.RECUSADA,
-      log: `Recusada: ${motivo}`,
+      log: novoLog,
       dataDecisao: new Date()
     });
+
     return { message: "Reserva recusada" };
   }
-
-
 
   /**
    * CANCELAR RESERVA
@@ -216,21 +186,25 @@ export class ReservaService {
       throw new Error("Reserva já cancelada");
     }
 
-    await repo.update(id, {
+    const novoLog = [...(reserva.log ?? [])];
+    novoLog.push(`Cancelada pelo usuário ${usuario.id}`);
+
+    await repo.save({
+      ...reserva,
       status: StatusReserva.CANCELADA,
-      log: `Reserva cancelada pelo usuário ${usuario.id}`,
+      log: novoLog,
       dataDecisao: new Date()
     });
+
     return { message: "Reserva cancelada" };
   }
 
-
-
   /**
-   * OBTER LOG / DETALHES
+   * OBTER LOG
    */
   async obterLog(id: number, usuario: Usuario) {
-  const reserva = await this.buscarPorId(id, usuario);
+
+    const reserva = await this.buscarPorId(id, usuario);
 
     return {
       id: reserva.id,
@@ -240,5 +214,33 @@ export class ReservaService {
       dataCriacao: reserva.dataCriacao,
       dataDecisao: reserva.dataDecisao
     };
+  }
+
+  /**
+   * HISTÓRICO POR PERÍODO
+   */
+  async historicoPorPeriodo(inicio: Date, fim: Date, usuario: Usuario) {
+
+    if (!inicio || !fim) {
+      throw new Error("Datas obrigatórias");
+    }
+
+    if (inicio > fim) {
+      throw new Error("Data inicial não pode ser maior que a final");
+    }
+
+    const where: any = {
+      dataCriacao: Between(inicio, fim)
+    };
+
+    if (usuario.perfil !== Perfil.ADMIN) {
+      where.solicitante = { id: usuario.id };
+    }
+
+    return repo.find({
+      where,
+      relations: ["solicitante", "espaco"],
+      order: { dataCriacao: "DESC" }
+    });
   }
 }

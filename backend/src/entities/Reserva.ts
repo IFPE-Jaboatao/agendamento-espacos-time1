@@ -55,8 +55,8 @@ export class Reserva {
   @Column({ type: "timestamp", nullable: true })
   dataCancelamento?: Date;
 
-  @Column({ type: "text", nullable: true })
-  log?: string;
+  @Column({ type: "simple-array", nullable: true })
+  log?: string[];
 
   @Column({
     name: "data_decisao",
