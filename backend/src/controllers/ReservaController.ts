@@ -54,18 +54,30 @@ export class ReservaController {
    */
   async criar(req: Request, res: Response) {
     try {
+
+      const {
+        espacoId,
+        ...resto
+      } = req.body;
+
       const dados = {
-        ...req.body,
-        solicitante: req.user
+        ...resto,
+        solicitante: req.user,
+        espaco: {
+          id: Number(espacoId)
+        }
       };
 
       const reserva = await this.service.criar(dados);
 
       return res.status(201).json(reserva);
+
     } catch (err: any) {
+
       return res.status(400).json({
         error: err.message
       });
+
     }
   }
 

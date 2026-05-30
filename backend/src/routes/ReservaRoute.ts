@@ -90,7 +90,7 @@ router.get("/:id", controller.buscarReservas.bind(controller));
  * /reservas:
  *   post:
  *     summary: Cria uma nova reserva
- *     description: Rota protegida para criação de reservas
+ *     description: Cria uma reserva para um espaço. O solicitante é identificado automaticamente pelo token JWT.
  *     tags: [Reservas]
  *
  *     security:
@@ -106,8 +106,7 @@ router.get("/:id", controller.buscarReservas.bind(controller));
  *             required:
  *               - dataInicio
  *               - dataFim
- *               - solicitante_id
- *               - espaco_id
+ *               - espacoId
  *
  *             properties:
  *               dataInicio:
@@ -128,21 +127,25 @@ router.get("/:id", controller.buscarReservas.bind(controller));
  *                 type: string
  *                 example: Reserva para apresentação do TCC
  *
- *               solicitante_id:
- *                 type: number
+ *               espacoId:
+ *                 type: integer
  *                 example: 1
- *                 description: ID do usuário que está solicitando a reserva
+ *                 description: ID do espaço que será reservado
  *
- *               espaco_id:
- *                 type: number
- *                 example: 3
- *                 description: ID do espaço reservado
+ *           example:
+ *             dataInicio: "2026-06-01T10:00:00Z"
+ *             dataFim: "2026-06-01T12:00:00Z"
+ *             motivo: "Reunião de projeto"
+ *             descricao: "Reserva para apresentação do TCC"
+ *             espacoId: 1
  *
  *     responses:
  *       201:
  *         description: Reserva criada com sucesso
+ *
  *       400:
  *         description: Dados inválidos
+ *
  *       401:
  *         description: Não autorizado
  */
