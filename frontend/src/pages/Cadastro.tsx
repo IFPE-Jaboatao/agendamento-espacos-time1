@@ -75,7 +75,7 @@ export default function Cadastro() {
 
           {/* Nome */}
           <div>
-            <Label htmlFor="nome" value="Nome Completo" />
+            <Label htmlFor="nome">Nome Completo</Label>
             <TextInput
               id="nome"
               required
@@ -87,7 +87,7 @@ export default function Cadastro() {
 
           {/* Email */}
           <div>
-            <Label htmlFor="email" value="Email" />
+            <Label htmlFor="email">Email</Label>
             <TextInput
               id="email"
               type="email"
@@ -100,7 +100,7 @@ export default function Cadastro() {
 
           {/* Tipo */}
           <div>
-            <Label htmlFor="tipo" value="Tipo de Usuário" />
+            <Label htmlFor="tipo">Tipo de Usuário</Label>
             <Select
               id="tipo"
               value={form.tipoUsuario}
@@ -114,7 +114,7 @@ export default function Cadastro() {
 
           {/* Login */}
           <div>
-            <Label htmlFor="login" value="Login" />
+            <Label htmlFor="login">Login</Label>
             <TextInput
               id="login"
               required
@@ -127,7 +127,7 @@ export default function Cadastro() {
           {/* Senha */}
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <Label htmlFor="senha" value="Senha" />
+              <Label htmlFor="senha">Senha</Label>
               <TextInput
                 id="senha"
                 type="password"
@@ -139,7 +139,7 @@ export default function Cadastro() {
             </div>
 
             <div>
-              <Label htmlFor="confirmar" value="Confirmar" />
+              <Label htmlFor="confirmar">Confirmar</Label>
               <TextInput
                 id="confirmar"
                 type="password"
