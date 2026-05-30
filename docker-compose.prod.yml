@@ -7,10 +7,10 @@ services:
       - --collation-server=utf8mb4_unicode_ci
       - --log_bin_trust_function_creators=1
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-agenda_espacos}
+      MYSQL_USER: ${MYSQL_USER:-root}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-root}
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
@@ -48,11 +48,11 @@ services:
       PORT: "3001"
       DB_HOST: mysql
       DB_PORT: "3306"
-      DB_USER: ${MYSQL_USER}
-      DB_PASS: ${MYSQL_PASSWORD}
-      DB_NAME: ${MYSQL_DATABASE}
+      DB_USER: ${MYSQL_USER:-root}
+      DB_PASS: ${MYSQL_PASSWORD:-root}
+      DB_NAME: ${MYSQL_DATABASE:-agenda_espacos}
       DB_LOGGING: ${DB_LOGGING:-false}
-      JWT_SECRET: ${JWT_SECRET}
+      JWT_SECRET: ${JWT_SECRET:-changeme}
       # URL pública do frontend (CORS / links); defina quando o frontend existir
       FRONTEND_URL: ${FRONTEND_URL:-}
     networks:
@@ -75,7 +75,9 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: ${VITE_API_URL}
+        VITE_API_URL: ${VITE_API_URL:-/api}
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-/api}
     restart: unless-stopped
     networks:
       - dokploy-network
