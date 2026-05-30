@@ -18,9 +18,9 @@ async function startServer() {
 
     console.log("Banco conectado com sucesso");
 
-    app.listen(PORT, () => {
+    app.listen(Number(PORT), "0.0.0.0", () => {
       console.log(
-        `Servidor rodando em http://localhost:${PORT}`
+        `Servidor rodando em http://0.0.0.0:${PORT}`
       );
     });
 
