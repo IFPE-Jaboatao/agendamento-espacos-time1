@@ -3,13 +3,12 @@ import {
   PrimaryGeneratedColumn,
   Column,
   JoinColumn,
-  OneToMany,
   CreateDateColumn,
-  ManyToOne
+  ManyToOne,
+  Index
 } from "typeorm";
 
 import { Usuario } from "./Usuario";
-import { HistoricoReserva } from "./HistoricoReserva";
 import { Espaco } from "./Espaco";
 
 export enum StatusReserva {
@@ -20,25 +19,19 @@ export enum StatusReserva {
 }
 
 @Entity("reservas")
+@Index(["espaco", "dataInicio", "dataFim"])
 export class Reserva {
-
   @PrimaryGeneratedColumn()
   id!: number;
 
   @CreateDateColumn({ name: "data_criacao" })
   dataCriacao!: Date;
 
-  @Column({ name: "data_inicio", type: "datetime" })
+  @Column({ name: "data_inicio", type: "timestamp" })
   dataInicio!: Date;
 
-  @Column({ name: "data_fim", type: "datetime" })
+  @Column({ name: "data_fim", type: "timestamp" })
   dataFim!: Date;
-
-  @Column({ length: 50, nullable: true })
-  tipo?: string;
-
-  @Column({ length: 50, nullable: true })
-  motivo?: string;
 
   @Column({
     type: "enum",
@@ -47,17 +40,52 @@ export class Reserva {
   })
   status!: StatusReserva;
 
+  @Column({ length: 100, nullable: true })
+  motivo?: string;
+
   @Column({ type: "text", nullable: true })
   descricao?: string;
 
-  @ManyToOne(() => Usuario, (usuario) => usuario.reservas, { nullable: false })
+  @Column({ type: "timestamp", nullable: true })
+  dataAprovacao?: Date;
+
+  @Column({ type: "timestamp", nullable: true })
+  dataRecusa?: Date;
+
+  @Column({ type: "timestamp", nullable: true })
+  dataCancelamento?: Date;
+
+  @Column({ type: "simple-array", nullable: true })
+  log?: string[];
+
+  @Column({
+    name: "data_decisao",
+    type: "timestamp",
+    nullable: true
+  })
+  dataDecisao?: Date;
+
+  // quem solicitou
+  @ManyToOne(() => Usuario, (usuario) => usuario.reservasSolicitadas, {
+    nullable: false,
+    onDelete: "CASCADE"
+  })
   @JoinColumn({ name: "solicitante_id" })
   solicitante!: Usuario;
 
-  @ManyToOne(() => Espaco, (espaco) => espaco.reservas, { nullable: false })
+  // quem aprovou/rejeitou
+  @ManyToOne(() => Usuario, (usuario) => usuario.reservasAprovadas, {
+    nullable: true,
+    onDelete: "SET NULL"
+  })
+  @JoinColumn({ name: "aprovador_id" })
+  aprovador?: Usuario;
+
+  // espaço reservado
+  @ManyToOne(() => Espaco, (espaco) => espaco.reservas, {
+    nullable: false,
+    onDelete: "RESTRICT"
+  })
   @JoinColumn({ name: "espaco_id" })
   espaco!: Espaco;
-
-  @OneToMany(() => HistoricoReserva, (historico) => historico.reserva)
-  historicos?: HistoricoReserva[];
 }

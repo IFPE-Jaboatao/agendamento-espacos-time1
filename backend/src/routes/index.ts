@@ -4,7 +4,6 @@ import AuthRoute from "./AuthRoute";
 import UsuarioRoute from "./UsuarioRoute";
 import EspacoRoute from "./EspacoRoute";
 import ReservaRoute from "./ReservaRoute";
-import HistoricoReservaRoute from "./HistoricoReservaRoute";
 
 const router = Router();
 
@@ -22,6 +21,5 @@ router.use("/espacos", EspacoRoute);
 
 router.use("/reservas", ReservaRoute);
 
-router.use("/historico", HistoricoReservaRoute);
 
 export default router;

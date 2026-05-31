@@ -1,22 +1,17 @@
 import { Router } from "express";
 import { ReservaController } from "../controllers/ReservaController";
-
 import { authMiddleware } from "../middlewares/authMiddleware";
 
 const router = Router();
 const controller = new ReservaController();
 
-/**
- * TODAS AS ROTAS DE RESERVA
- * EXIGEM AUTENTICAÇÃO
- */
 router.use(authMiddleware);
 
 /**
  * @swagger
  * tags:
  *   name: Reservas
- *   description: Gerenciamento de reservas de espaços
+ *   description: Sistema completo de gerenciamento de reservas de espaços
  */
 
 /**
@@ -24,7 +19,7 @@ router.use(authMiddleware);
  * /reservas:
  *   get:
  *     summary: Lista reservas
- *     description: Retorna todas as reservas do sistema
+ *     description: Retorna todas as reservas. ADMIN vê tudo, usuário vê apenas as próprias.
  *     tags: [Reservas]
  *
  *     security:
@@ -33,45 +28,37 @@ router.use(authMiddleware);
  *     responses:
  *       200:
  *         description: Lista de reservas retornada com sucesso
- *
  *         content:
  *           application/json:
  *             schema:
  *               type: array
- *
  *               items:
  *                 type: object
- *
  *                 properties:
  *                   id:
  *                     type: number
- *
+ *                     example: 1
  *                   status:
  *                     type: string
  *                     example: PENDENTE
- *
  *                   dataInicio:
  *                     type: string
- *                     example: 2026-05-15T08:00:00.000Z
- *
+ *                     example: 2026-05-20T08:00:00.000Z
  *                   dataFim:
  *                     type: string
- *                     example: 2026-05-15T10:00:00.000Z
+ *                     example: 2026-05-20T10:00:00.000Z
  *
  *       401:
  *         description: Não autorizado
  */
-router.get(
-  "/",
-  controller.listar.bind(controller)
-);
+router.get("/", controller.listarReservas.bind(controller));
 
 /**
  * @swagger
  * /reservas/{id}:
  *   get:
- *     summary: Busca reserva por ID
- *     description: Retorna os dados de uma reserva específica
+ *     summary: Buscar reserva por ID
+ *     description: Retorna uma reserva específica do sistema
  *     tags: [Reservas]
  *
  *     security:
@@ -81,33 +68,29 @@ router.get(
  *       - in: path
  *         name: id
  *         required: true
- *
+ *         description: ID da reserva
  *         schema:
  *           type: integer
- *
- *         description: ID da reserva
+ *           example: 1
  *
  *     responses:
  *       200:
- *         description: Reserva encontrada
- *
- *       401:
- *         description: Não autorizado
+ *         description: Reserva encontrada com sucesso
  *
  *       404:
  *         description: Reserva não encontrada
+ *
+ *       401:
+ *         description: Não autorizado
  */
-router.get(
-  "/:id",
-  controller.buscar.bind(controller)
-);
+router.get("/:id", controller.buscarReservas.bind(controller));
 
 /**
  * @swagger
  * /reservas:
  *   post:
  *     summary: Cria uma nova reserva
- *     description: Cria uma reserva para um espaço
+ *     description: Cria uma reserva para um espaço. O solicitante é identificado automaticamente pelo token JWT.
  *     tags: [Reservas]
  *
  *     security:
@@ -115,29 +98,46 @@ router.get(
  *
  *     requestBody:
  *       required: true
- *
  *       content:
  *         application/json:
  *           schema:
  *             type: object
  *
  *             required:
- *               - espacoId
  *               - dataInicio
  *               - dataFim
+ *               - espacoId
  *
  *             properties:
- *               espacoId:
- *                 type: number
- *                 example: 1
- *
  *               dataInicio:
  *                 type: string
- *                 example: 2026-05-20T08:00:00.000Z
+ *                 format: date-time
+ *                 example: 2026-06-01T10:00:00Z
  *
  *               dataFim:
  *                 type: string
- *                 example: 2026-05-20T10:00:00.000Z
+ *                 format: date-time
+ *                 example: 2026-06-01T12:00:00Z
+ *
+ *               motivo:
+ *                 type: string
+ *                 example: Reunião de projeto
+ *
+ *               descricao:
+ *                 type: string
+ *                 example: Reserva para apresentação do TCC
+ *
+ *               espacoId:
+ *                 type: integer
+ *                 example: 1
+ *                 description: ID do espaço que será reservado
+ *
+ *           example:
+ *             dataInicio: "2026-06-01T10:00:00Z"
+ *             dataFim: "2026-06-01T12:00:00Z"
+ *             motivo: "Reunião de projeto"
+ *             descricao: "Reserva para apresentação do TCC"
+ *             espacoId: 1
  *
  *     responses:
  *       201:
@@ -151,6 +151,7 @@ router.get(
  */
 router.post(
   "/",
+  authMiddleware,
   controller.criar.bind(controller)
 );
 
@@ -158,8 +159,8 @@ router.post(
  * @swagger
  * /reservas/{id}/aprovar:
  *   patch:
- *     summary: Aprova uma reserva
- *     description: Aprova uma reserva pendente
+ *     summary: Aprovar reserva
+ *     description: Aprova uma reserva pendente (apenas ADMIN)
  *     tags: [Reservas]
  *
  *     security:
@@ -169,33 +170,28 @@ router.post(
  *       - in: path
  *         name: id
  *         required: true
- *
  *         schema:
  *           type: integer
- *
- *         description: ID da reserva
+ *           example: 1
  *
  *     responses:
  *       200:
  *         description: Reserva aprovada com sucesso
  *
+ *       400:
+ *         description: Erro ao aprovar
+ *
  *       401:
  *         description: Não autorizado
- *
- *       404:
- *         description: Reserva não encontrada
  */
-router.patch(
-  "/:id/aprovar",
-  controller.aprovar.bind(controller)
-);
+router.patch("/:id/aprovar", controller.aprovarReserva.bind(controller));
 
 /**
  * @swagger
  * /reservas/{id}/recusar:
  *   patch:
- *     summary: Recusa uma reserva
- *     description: Recusa uma reserva pendente
+ *     summary: Recusar reserva
+ *     description: Recusa uma reserva pendente com motivo (apenas ADMIN)
  *     tags: [Reservas]
  *
  *     security:
@@ -205,33 +201,41 @@ router.patch(
  *       - in: path
  *         name: id
  *         required: true
- *
  *         schema:
  *           type: integer
+ *           example: 1
  *
- *         description: ID da reserva
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - motivo
+ *             properties:
+ *               motivo:
+ *                 type: string
+ *                 example: Espaço indisponível no horário
  *
  *     responses:
  *       200:
  *         description: Reserva recusada com sucesso
  *
+ *       400:
+ *         description: Erro ao recusar
+ *
  *       401:
  *         description: Não autorizado
- *
- *       404:
- *         description: Reserva não encontrada
  */
-router.patch(
-  "/:id/recusar",
-  controller.recusar.bind(controller)
-);
+router.patch("/:id/recusar", controller.recusarReserva.bind(controller));
 
 /**
  * @swagger
  * /reservas/{id}/cancelar:
  *   patch:
- *     summary: Cancela uma reserva
- *     description: Cancela uma reserva existente
+ *     summary: Cancelar reserva
+ *     description: Cancela uma reserva existente (usuário dono ou admin)
  *     tags: [Reservas]
  *
  *     security:
@@ -241,25 +245,86 @@ router.patch(
  *       - in: path
  *         name: id
  *         required: true
- *
  *         schema:
  *           type: integer
- *
- *         description: ID da reserva
+ *           example: 1
  *
  *     responses:
  *       200:
  *         description: Reserva cancelada com sucesso
  *
+ *       400:
+ *         description: Erro ao cancelar
+ *
  *       401:
  *         description: Não autorizado
+ */
+router.patch("/:id/cancelar", controller.cancelarReserva.bind(controller));
+
+/**
+ * @swagger
+ * /reservas/{id}/log:
+ *   get:
+ *     summary: Histórico da reserva
+ *     description: Retorna o log interno da reserva (criação, aprovação, cancelamento etc.)
+ *     tags: [Reservas]
+ *
+ *     security:
+ *       - bearerAuth: []
+ *
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *
+ *     responses:
+ *       200:
+ *         description: Log retornado com sucesso
  *
  *       404:
  *         description: Reserva não encontrada
  */
-router.patch(
-  "/:id/cancelar",
-  controller.cancelar.bind(controller)
+router.get("/:id/log", controller.obterLog.bind(controller));
+
+/**
+ * @swagger
+ * /reservas/historico/periodo:
+ *   get:
+ *     summary: Histórico por período
+ *     description: Lista reservas filtradas por intervalo de datas (ADMIN vê tudo, usuário vê apenas suas)
+ *     tags: [Reservas]
+ *
+ *     security:
+ *       - bearerAuth: []
+ *
+ *     parameters:
+ *       - in: query
+ *         name: inicio
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: 2026-05-01T00:00:00.000Z
+ *
+ *       - in: query
+ *         name: fim
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: 2026-05-30T23:59:59.000Z
+ *
+ *     responses:
+ *       200:
+ *         description: Histórico retornado com sucesso
+ *
+ *       400:
+ *         description: Datas inválidas
+ */
+router.get(
+  "/historico/periodo",
+  controller.historicoPeriodo.bind(controller)
 );
 
 export default router;

@@ -108,6 +108,7 @@ router.get(
  *             required:
  *               - nome
  *               - capacidade
+ *               - tipo
  *
  *             properties:
  *               nome:
@@ -122,6 +123,14 @@ router.get(
  *                 type: number
  *                 example: 120
  *
+ *               tipo:
+ *                 type: string
+ *                 enum:
+ *                   - laboratorio
+ *                   - sala
+ *                   - auditorio
+ *                 example: auditorio
+ *
  *               ativo:
  *                 type: boolean
  *                 example: true
@@ -129,10 +138,8 @@ router.get(
  *     responses:
  *       201:
  *         description: Espaço criado com sucesso
- *
  *       401:
  *         description: Não autorizado
- *
  *       400:
  *         description: Dados inválidos
  */

@@ -32,7 +32,6 @@ const controller = new AuthController();
  *               login:
  *                 type: string
  *                 example: victor
- *
  *               senha:
  *                 type: string
  *                 example: 123456
@@ -40,7 +39,6 @@ const controller = new AuthController();
  *     responses:
  *       200:
  *         description: Login realizado com sucesso
- *
  *         content:
  *           application/json:
  *             schema:
@@ -48,25 +46,21 @@ const controller = new AuthController();
  *               properties:
  *                 token:
  *                   type: string
- *
  *                 usuario:
  *                   type: object
  *                   properties:
  *                     id:
  *                       type: number
- *
  *                     nome:
  *                       type: string
- *
  *                     email:
  *                       type: string
- *
- *                     login:
- *                       type: string
- *
  *                     perfil:
  *                       type: string
  *                       example: usuario
+ *                     tipoUsuario:
+ *                       type: string
+ *                       example: aluno
  *
  *       400:
  *         description: Login ou senha inválidos
@@ -74,10 +68,7 @@ const controller = new AuthController();
  *       500:
  *         description: Erro interno do servidor
  */
-router.post(
-  "/login",
-  controller.login.bind(controller)
-);
+router.post("/login", controller.login.bind(controller));
 
 /**
  * @swagger
@@ -93,41 +84,47 @@ router.post(
  *         application/json:
  *           schema:
  *             type: object
- *
  *             required:
  *               - nome
  *               - email
  *               - login
  *               - senha
- *
  *             properties:
  *               nome:
  *                 type: string
  *                 example: Victor Gabriel
- *
  *               email:
  *                 type: string
  *                 example: victor@gmail.com
- *
  *               login:
  *                 type: string
  *                 example: victor
- *
  *               senha:
  *                 type: string
  *                 example: 123456
  *
- *               perfil:
- *                 type: string
- *                 example: usuario
- *
- *               tipoUsuario:
- *                 type: string
- *                 example: aluno
- *
  *     responses:
  *       201:
  *         description: Usuário criado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: number
+ *                 nome:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 login:
+ *                   type: string
+ *                 perfil:
+ *                   type: string
+ *                   example: usuario
+ *                 tipoUsuario:
+ *                   type: string
+ *                   example: aluno
  *
  *       400:
  *         description: Dados inválidos
@@ -138,9 +135,6 @@ router.post(
  *       500:
  *         description: Erro interno do servidor
  */
-router.post(
-  "/register",
-  controller.register.bind(controller)
-);
+router.post("/register", controller.register.bind(controller));
 
 export default router;

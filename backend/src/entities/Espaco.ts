@@ -47,5 +47,5 @@ export class Espaco {
   status!: StatusEspaco;
 
   @OneToMany(() => Reserva, (reserva) => reserva.espaco)
-  reservas?: Reserva[];
+  reservas!: Reserva[];
 }

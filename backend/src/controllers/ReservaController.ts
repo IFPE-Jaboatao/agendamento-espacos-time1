@@ -12,16 +12,29 @@ export class ReservaController {
    * LISTAR RESERVAS
    * GET /reservas
    */
-  async listar(req: Request, res: Response) {
-    const reservas = await this.service.listarTodos(req.user);
+  async listarReservas(req: Request, res: Response) {
+  try {
+
+    const reservas = await this.service.listarTodos(
+      req.user
+    );
+
     return res.json(reservas);
+
+  } catch (err: any) {
+
+    return res.status(400).json({
+      error: err.message
+    });
+
   }
+}
 
   /**
    * BUSCAR POR ID
    * GET /reservas/:id
    */
-  async buscar(req: Request, res: Response) {
+  async buscarReservas(req: Request, res: Response) {
     try {
       const id = Number(req.params.id);
 
@@ -41,18 +54,30 @@ export class ReservaController {
    */
   async criar(req: Request, res: Response) {
     try {
+
+      const {
+        espacoId,
+        ...resto
+      } = req.body;
+
       const dados = {
-        ...req.body,
-        solicitante: req.user
+        ...resto,
+        solicitante: req.user,
+        espaco: {
+          id: Number(espacoId)
+        }
       };
 
       const reserva = await this.service.criar(dados);
 
       return res.status(201).json(reserva);
+
     } catch (err: any) {
+
       return res.status(400).json({
         error: err.message
       });
+
     }
   }
 
@@ -60,13 +85,17 @@ export class ReservaController {
    * APROVAR RESERVA
    * PATCH /reservas/:id/aprovar
    */
-  async aprovar(req: Request, res: Response) {
+  async aprovarReserva(req: Request, res: Response) {
     try {
       const id = Number(req.params.id);
 
-      await this.service.aprovar(id, req.user);
+      const result = await this.service.aprovar(
+        id,
+        req.user
+      );
 
-      return res.json({ message: "Reserva aprovada" });
+      return res.json(result);
+
     } catch (err: any) {
       return res.status(400).json({
         error: err.message
@@ -78,15 +107,20 @@ export class ReservaController {
    * RECUSAR RESERVA
    * PATCH /reservas/:id/recusar
    */
-  async recusar(req: Request, res: Response) {
+  async recusarReserva(req: Request, res: Response) {
     try {
       const id = Number(req.params.id);
 
       const { motivo } = req.body;
 
-      await this.service.recusar(id, motivo, req.user);
+      const result = await this.service.recusar(
+        id,
+        motivo,
+        req.user
+      );
 
-      return res.json({ message: "Reserva recusada" });
+      return res.json(result);
+
     } catch (err: any) {
       return res.status(400).json({
         error: err.message
@@ -98,13 +132,56 @@ export class ReservaController {
    * CANCELAR RESERVA
    * PATCH /reservas/:id/cancelar
    */
-  async cancelar(req: Request, res: Response) {
+  async cancelarReserva(req: Request, res: Response) {
     try {
       const id = Number(req.params.id);
 
-      await this.service.cancelar(id, req.user);
+      const result = await this.service.cancelar(
+        id,
+        req.user
+      );
 
-      return res.json({ message: "Reserva cancelada" });
+      return res.json(result);
+
+    } catch (err: any) {
+      return res.status(400).json({
+        error: err.message
+      });
+    }
+  }
+
+  /**
+   * HISTÓRICO (LOG DA RESERVA)
+   * GET /historico/:id
+   */
+  async obterLog(req: Request, res: Response) {
+    try {
+      const id = Number(req.params.id);
+
+      const log = await this.service.obterLog(id, req.user);
+
+      return res.json(log);
+    } catch (err: any) {
+      return res.status(404).json({ error: err.message });
+    }
+  }
+
+  /**
+  * HISTÓRICO POR PERÍODO
+  * GET /reservas/historico?inicio=...&fim=...
+  */
+  async historicoPeriodo(req: Request, res: Response) {
+    try {
+      const { inicio, fim } = req.query;
+
+      const reservas = await this.service.historicoPorPeriodo(
+        new Date(inicio as string),
+        new Date(fim as string),
+        req.user
+      );
+
+      return res.json(reservas);
+
     } catch (err: any) {
       return res.status(400).json({
         error: err.message
