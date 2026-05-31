@@ -13,22 +13,16 @@ export class ReservaController {
    * GET /reservas
    */
   async listarReservas(req: Request, res: Response) {
-  try {
+    try {
+      const reservas = await this.service.listarTodos(req.user);
+      return res.json(reservas);
 
-    const reservas = await this.service.listarTodos(
-      req.user
-    );
-
-    return res.json(reservas);
-
-  } catch (err: any) {
-
-    return res.status(400).json({
-      error: err.message
-    });
-
+    } catch (err: any) {
+      return res.status(400).json({
+        error: err.message || "Erro ao listar reservas"
+      });
+    }
   }
-}
 
   /**
    * BUSCAR POR ID
@@ -38,12 +32,19 @@ export class ReservaController {
     try {
       const id = Number(req.params.id);
 
+      if (!id || isNaN(id)) {
+        return res.status(400).json({
+          error: "ID inválido"
+        });
+      }
+
       const reserva = await this.service.buscarPorId(id, req.user);
 
       return res.json(reserva);
+
     } catch (err: any) {
       return res.status(404).json({
-        error: err.message
+        error: err.message || "Reserva não encontrada"
       });
     }
   }
@@ -54,11 +55,13 @@ export class ReservaController {
    */
   async criar(req: Request, res: Response) {
     try {
+      const { espacoId, ...resto } = req.body;
 
-      const {
-        espacoId,
-        ...resto
-      } = req.body;
+      if (!espacoId) {
+        return res.status(400).json({
+          error: "espacoId é obrigatório"
+        });
+      }
 
       const dados = {
         ...resto,
@@ -73,11 +76,9 @@ export class ReservaController {
       return res.status(201).json(reserva);
 
     } catch (err: any) {
-
       return res.status(400).json({
-        error: err.message
+        error: err.message || "Erro ao criar reserva"
       });
-
     }
   }
 
@@ -89,16 +90,19 @@ export class ReservaController {
     try {
       const id = Number(req.params.id);
 
-      const result = await this.service.aprovar(
-        id,
-        req.user
-      );
+      if (!id || isNaN(id)) {
+        return res.status(400).json({
+          error: "ID inválido"
+        });
+      }
+
+      const result = await this.service.aprovar(id, req.user);
 
       return res.json(result);
 
     } catch (err: any) {
       return res.status(400).json({
-        error: err.message
+        error: err.message || "Erro ao aprovar reserva"
       });
     }
   }
@@ -110,8 +114,19 @@ export class ReservaController {
   async recusarReserva(req: Request, res: Response) {
     try {
       const id = Number(req.params.id);
-
       const { motivo } = req.body;
+
+      if (!id || isNaN(id)) {
+        return res.status(400).json({
+          error: "ID inválido"
+        });
+      }
+
+      if (!motivo || motivo.trim() === "") {
+        return res.status(400).json({
+          error: "Motivo obrigatório"
+        });
+      }
 
       const result = await this.service.recusar(
         id,
@@ -123,7 +138,7 @@ export class ReservaController {
 
     } catch (err: any) {
       return res.status(400).json({
-        error: err.message
+        error: err.message || "Erro ao recusar reserva"
       });
     }
   }
@@ -136,16 +151,19 @@ export class ReservaController {
     try {
       const id = Number(req.params.id);
 
-      const result = await this.service.cancelar(
-        id,
-        req.user
-      );
+      if (!id || isNaN(id)) {
+        return res.status(400).json({
+          error: "ID inválido"
+        });
+      }
+
+      const result = await this.service.cancelar(id, req.user);
 
       return res.json(result);
 
     } catch (err: any) {
       return res.status(400).json({
-        error: err.message
+        error: err.message || "Erro ao cancelar reserva"
       });
     }
   }
@@ -158,25 +176,49 @@ export class ReservaController {
     try {
       const id = Number(req.params.id);
 
+      if (!id || isNaN(id)) {
+        return res.status(400).json({
+          error: "ID inválido"
+        });
+      }
+
       const log = await this.service.obterLog(id, req.user);
 
       return res.json(log);
+
     } catch (err: any) {
-      return res.status(404).json({ error: err.message });
+      return res.status(404).json({
+        error: err.message || "Histórico não encontrado"
+      });
     }
   }
 
   /**
-  * HISTÓRICO POR PERÍODO
-  * GET /reservas/historico?inicio=...&fim=...
-  */
+   * HISTÓRICO POR PERÍODO
+   * GET /reservas/historico?inicio=...&fim=...
+   */
   async historicoPeriodo(req: Request, res: Response) {
     try {
       const { inicio, fim } = req.query;
 
+      if (!inicio || !fim) {
+        return res.status(400).json({
+          error: "Parâmetros inicio e fim são obrigatórios"
+        });
+      }
+
+      const inicioDate = new Date(inicio as string);
+      const fimDate = new Date(fim as string);
+
+      if (isNaN(inicioDate.getTime()) || isNaN(fimDate.getTime())) {
+        return res.status(400).json({
+          error: "Datas inválidas"
+        });
+      }
+
       const reservas = await this.service.historicoPorPeriodo(
-        new Date(inicio as string),
-        new Date(fim as string),
+        inicioDate,
+        fimDate,
         req.user
       );
 
@@ -184,7 +226,7 @@ export class ReservaController {
 
     } catch (err: any) {
       return res.status(400).json({
-        error: err.message
+        error: err.message || "Erro ao buscar histórico"
       });
     }
   }

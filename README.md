@@ -65,34 +65,29 @@ backend/
 │   ├── AuthController.ts
 │   ├── UsuarioController.ts
 │   ├── EspacoController.ts
-│   ├── ReservaController.ts
-│   └── HistoricoReservaController.ts
+│   └── ReservaController.ts
 │
 ├── services/
 │   ├── AuthService.ts
 │   ├── UsuarioService.ts
 │   ├── EspacoService.ts
-│   ├── ReservaService.ts
-│   └── HistoricoReservaService.ts
+│   └── ReservaService.ts
 │
 ├── routes/
 │   ├── index.ts
 │   ├── AuthRoute.ts
 │   ├── UsuarioRoute.ts
 │   ├── EspacoRoute.ts
-│   ├── ReservaRoute.ts
-│   └── HistoricoReservaRoute.ts
+│   └── ReservaRoute.ts
 │
 ├── middlewares/
 │   ├── authMiddleware.ts
-│   ├── adminMiddleware.ts
-│   └── perfilMiddleware.ts
+│   └── adminMiddleware.ts
 │
 ├── entities/
 │   ├── Usuario.ts
 │   ├── Espaco.ts
-│   ├── Reserva.ts
-│   └── HistoricoReserva.ts
+│   └── Reserva.ts
 │
 ├── docs/
 │   └── swagger.ts
@@ -353,20 +348,12 @@ Agora as rotas protegidas funcionarão.
 |---|---|
 | GET | `/api/reservas` |
 | GET | `/api/reservas/:id` |
+| GET | `/api/reservas/:id/log` |
+| GET | `/api/reservas/historico/periodo` |
 | POST | `/api/reservas` |
 | PATCH | `/api/reservas/:id/aprovar` |
 | PATCH | `/api/reservas/:id/recusar` |
 | PATCH | `/api/reservas/:id/cancelar` |
-
----
-
-## Histórico
-
-| Método | Rota |
-|---|---|
-| GET | `/api/historico` |
-| GET | `/api/historico/:id` |
-| DELETE | `/api/historico/:id` |
 
 ---
 

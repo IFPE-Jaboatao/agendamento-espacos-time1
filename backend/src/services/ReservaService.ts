@@ -206,6 +206,7 @@ export class ReservaService {
     return { message: "Reserva cancelada" };
   }
 
+
   /**
    * OBTER LOG
    */
@@ -228,26 +229,79 @@ export class ReservaService {
    */
   async historicoPorPeriodo(inicio: Date, fim: Date, usuario: Usuario) {
 
-    if (!inicio || !fim) {
-      throw new Error("Datas obrigatórias");
-    }
+  if (!inicio || !fim) {
+    throw new Error("Datas obrigatórias");
+  }
 
-    if (inicio > fim) {
-      throw new Error("Data inicial não pode ser maior que a final");
-    }
+  if (inicio > fim) {
+    throw new Error("Data inicial não pode ser maior que a final");
+  }
 
-    const where: any = {
-      dataCriacao: Between(inicio, fim)
-    };
+  const where: any = {
+    dataInicio: LessThan(fim),
+    dataFim: MoreThan(inicio)
+  };
 
-    if (usuario.perfil !== Perfil.ADMIN) {
-      where.solicitante = { id: usuario.id };
-    }
+  // se não for admin, filtra só as reservas do usuário
+  if (usuario.perfil !== Perfil.ADMIN) {
+    where.solicitante = { id: usuario.id };
+  }
 
-    return repo.find({
-      where,
-      relations: ["solicitante", "espaco"],
-      order: { dataCriacao: "DESC" }
+  const reservas = await repo.find({
+    where,
+    relations: ["solicitante", "espaco"],
+    order: { dataInicio: "DESC" }
+  });
+
+  return reservas;
+}
+
+  /**
+   * Finaliza reservas que já passaram do horário
+   */
+  async finalizarReservasExpiradas() {
+    const agora = new Date();
+
+    const reservas = await repo.find({
+      where: {
+        status: StatusReserva.APROVADA
+      }
     });
+
+    const expiradas = reservas.filter(
+      r => r.dataFim < agora
+    );
+
+    for (const reserva of expiradas) {
+      reserva.status = StatusReserva.FINALIZADA;
+
+      reserva.log = [
+        ...(reserva.log ?? []),
+        `Finalizada automaticamente em ${agora.toISOString()}`
+      ];
+
+      await repo.save(reserva);
+    }
+
+    return {
+      totalFinalizadas: expiradas.length
+    };
+  }
+
+  private schedulerIniciado = false;
+
+  iniciarScheduler() {
+    if (this.schedulerIniciado) return;
+
+    this.schedulerIniciado = true;
+
+    setInterval(async () => {
+      try {
+        await this.finalizarReservasExpiradas();
+        console.log("Scheduler executado");
+      } catch (err) {
+        console.error("Erro no scheduler:", err);
+      }
+    }, 60 * 1000); // 1 minuto
   }
 }

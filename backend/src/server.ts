@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import app from "./app";
 import { AppDataSource } from "./data-source";
+import { ReservaService } from "./services/ReservaService";
 
 dotenv.config();
 
@@ -18,9 +19,14 @@ async function startServer() {
 
     console.log("Banco conectado com sucesso");
 
+    // INICIA SCHEDULER AQUI
+    const reservaService = new ReservaService();
+    reservaService.iniciarScheduler();
+
     app.listen(Number(PORT), "0.0.0.0", () => {
       console.log(
-        `Servidor rodando em http://0.0.0.0:${PORT}`
+        // `Servidor rodando em http://0.0.0.0:${PORT}`
+        `Servidor rodando em http://localhost:${PORT}`
       );
     });
 

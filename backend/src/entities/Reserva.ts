@@ -15,7 +15,8 @@ export enum StatusReserva {
   PENDENTE = "pendente",
   APROVADA = "aprovada",
   RECUSADA = "recusada",
-  CANCELADA = "cancelada"
+  CANCELADA = "cancelada",
+  FINALIZADA = "FINALIZADA"
 }
 
 @Entity("reservas")

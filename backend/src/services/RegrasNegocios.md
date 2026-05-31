@@ -6,13 +6,13 @@
 
 ### 1.1 Login
 - Usuário deve existir no sistema
-- Senha deve ser válida (comparação com hash)
-- Login inválido bloqueia acesso (mensagem genérica por segurança)
+- Senha deve ser validada com hash
+- Em caso de falha, retorna mensagem genérica ("Login ou senha inválidos")
 
 ### 1.2 Segurança
-- Senhas são armazenadas com hash
+- Senhas são armazenadas com hash seguro
 - Senhas nunca são retornadas nas respostas
-- Autenticação via JWT obrigatória
+- Autenticação obrigatória via JWT
 
 ### 1.3 Token
 - Token JWT expira em **8 horas**
@@ -20,7 +20,13 @@
 ### 1.4 Cadastro
 - Email deve ser único
 - Login deve ser único
-- Perfil sempre é definido como `USUARIO` no cadastro (não pode ser definido pelo cliente)
+- Perfil é sempre definido como `USUARIO` no cadastro comum
+- O cliente não pode definir perfil manualmente
+
+### 1.5 Tipo de Usuário
+- Tipo padrão: `ALUNO`
+- Apenas ADMIN pode criar usuários com outros tipos (`PROFESSOR`, `COORDENADOR`)
+- Usuário comum não pode alterar tipo de usuário
 
 ---
 
@@ -35,7 +41,7 @@
 - Pode cancelar qualquer reserva
 
 ### 2.2 USUÁRIO
-- Acessa apenas seus dados
+- Acessa apenas seus próprios dados
 - Visualiza apenas suas reservas
 - Visualiza apenas seus históricos
 - Pode criar reservas
@@ -51,11 +57,11 @@
 - auditório
 
 ### 3.2 Status
-- ativo
-- inativo
+- ATIVO
+- INATIVO
 
 ### 3.3 Regras
-- Apenas espaços ativos podem ser reservados
+- Apenas espaços com status `ATIVO` podem ser reservados
 - Apenas ADMIN pode gerenciar espaços
 - Espaços com reservas vinculadas não podem ser removidos
 
@@ -64,14 +70,15 @@
 ## 4. Reservas
 
 ### 4.1 Criação
-- Data início e fim são obrigatórias
+- Data de início e fim são obrigatórias
 - Data final deve ser maior que a inicial
-- Não permite datas no passado
-- Espaço deve existir
-- Espaço deve estar ativo
+- Não permite reservas no passado
+- O espaço deve existir
+- O espaço deve estar ativo
 
 ### 4.2 Conflito de horário
-- Não pode existir reserva sobreposta no mesmo espaço
+- Não pode existir sobreposição de reservas no mesmo espaço
+- Reservas `PENDENTE` ou `APROVADA` bloqueiam o horário
 
 ### 4.3 Status
 - Toda reserva inicia como `PENDENTE`
@@ -80,7 +87,7 @@
   - `RECUSADA`
   - `CANCELADA`
 
-> Reservas só podem ser aprovadas ou recusadas se estiverem `PENDENTES`
+> Apenas reservas `PENDENTES` podem ser aprovadas ou recusadas.
 
 ---
 
@@ -93,16 +100,17 @@
 ---
 
 ### 4.5 Aprovação e Recusa
-- Apenas ADMIN pode aprovar ou recusar
+- Apenas ADMIN pode aprovar ou recusar reservas
 - Recusa exige motivo obrigatório
 - Reservas já processadas não podem ser alteradas novamente
+- Aprovação e recusa são registradas com data e usuário responsável
 
 ---
 
 ## 5. Histórico (Auditoria)
 
 ### 5.1 Regra geral
-- Toda ação relevante gera histórico automaticamente
+- Toda ação relevante em reservas gera log automático
 
 ### 5.2 Ações registradas
 - Criação de reserva
@@ -111,15 +119,15 @@
 - Cancelamento
 
 ### 5.3 Dados registrados
-- Usuário responsável
+- Usuário responsável pela ação
 - Reserva associada
 - Status da ação
-- Descrição
-- Data automática
+- Descrição da ação
+- Data automática da alteração
 
 ### 5.4 Permissões
 - ADMIN visualiza todos os históricos
-- USUÁRIO visualiza apenas os seus
+- USUÁRIO visualiza apenas seus próprios históricos
 
 ---
 
@@ -127,18 +135,19 @@
 
 - Autenticação via JWT obrigatória
 - Acesso restrito a usuários autenticados
-- Validação de permissões obrigatória em todas as operações críticas
-- Mensagens de erro genéricas para login (evitar enumeração de usuários)
+- Validação de permissões em todas as operações críticas
+- Mensagens de erro genéricas em autenticação
+- Proteção contra acesso indevido por perfil
 
 ---
 
 ## 7. Consistência de Dados
 
-- Reserva não pode ter datas inválidas
-- Reserva depende de usuário e espaço
+- Reservas não podem ter datas inválidas
+- Reserva depende de usuário e espaço válidos
 - Histórico depende de reserva e usuário
-- Status inválidos são controlados via enum
-- Não há duplicidade de reservas no mesmo horário
+- Status são controlados por enums
+- Não pode existir sobreposição de reservas ativas no mesmo espaço
 
 ---
 
@@ -146,9 +155,9 @@
 
 - Paginação de listas
 - Soft delete
-- Middleware central de autenticação (RBAC)
-- DTOs com validação (class-validator)
+- Middleware de autenticação (RBAC)
+- DTOs com validação
 - Transações no banco
-- Melhoria de concorrência no conflito de horários (lock/constraint)
+- Controle de concorrência em reservas
 - Limite de reservas por usuário
-- Sistema de refresh token
+- Refresh token
