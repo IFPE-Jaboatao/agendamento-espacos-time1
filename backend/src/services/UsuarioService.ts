@@ -10,9 +10,14 @@ const repo = AppDataSource.getRepository(Usuario);
 export class UsuarioService {
 
   /**
-  * CRIAR USUÁRIO
-  */
-  async criar(dados: Partial<Usuario>) {
+   * CRIAR USUÁRIO
+   * Regras:
+   * - email único
+   * - login único
+   * - senha criptografada
+   * - perfil padrão USUARIO (nunca definido pelo cliente)
+   */
+  async criar(dados: Partial<Usuario>, usuarioLogado?: Usuario) {
 
     if (!dados.nome || !dados.email || !dados.login || !dados.senha) {
       throw new Error("Dados obrigatórios faltando");
@@ -36,13 +41,18 @@ export class UsuarioService {
 
     const senhaHash = await PasswordUtil.hash(dados.senha);
 
+    const tipoUsuario =
+      usuarioLogado?.perfil === Perfil.ADMIN
+        ? (dados.tipoUsuario ?? TipoUsuario.ALUNO)
+        : TipoUsuario.ALUNO;
+
     const usuario = repo.create({
       nome: dados.nome,
       email: dados.email,
       login: dados.login,
       senha: senhaHash,
       perfil: Perfil.USUARIO,
-      tipoUsuario: TipoUsuario.ALUNO
+      tipoUsuario: dados.tipoUsuario ?? TipoUsuario.ALUNO
     });
 
     const saved = await repo.save(usuario);

@@ -166,7 +166,11 @@ router.get(
  *
  *               tipoUsuario:
  *                 type: string
- *                 example: aluno
+ *                 enum:
+ *                  - aluno
+ *                  - professor
+ *                  - coordenador
+ *                 example: professor
  *
  *     responses:
  *       201:

@@ -47,9 +47,9 @@ export class Usuario {
   @Column({
     type: "enum",
     enum: TipoUsuario,
-    nullable: true
+    default: TipoUsuario.ALUNO
   })
-  tipoUsuario?: TipoUsuario;
+  tipoUsuario!: TipoUsuario;
 
   @CreateDateColumn({ name: "criado_em" })
   criadoEm!: Date;
