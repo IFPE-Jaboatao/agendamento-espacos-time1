@@ -157,13 +157,43 @@ export default function Cadastro() {
             </Alert>
           )}
 
-          <Button type="submit" disabled={carregando}>
-            {carregando ? "Processando..." : "Cadastrar"}
-          </Button>
+        <div className="flex flex-col gap-3 mt-4">
 
-          <Button type="button" color="light" onClick={() => navigate("/")}>
-            Voltar
-          </Button>
+  <button
+    type="submit"
+    disabled={carregando}
+    className="
+      w-full
+      bg-blue-600
+      hover:bg-blue-700
+      text-white
+      font-bold
+      py-3
+      rounded-xl
+      transition
+      disabled:opacity-50
+    "
+  >
+    {carregando ? "Processando..." : "Cadastrar"}
+  </button>
+
+  <button
+    type="button"
+    onClick={() => navigate("/")}
+    className="
+      w-full
+      border
+      border-gray-300
+      py-3
+      rounded-xl
+      hover:bg-gray-100
+      transition
+    "
+  >
+    Voltar
+  </button>
+
+</div>
 
         </form>
       </Card>
