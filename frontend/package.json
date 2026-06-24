@@ -15,7 +15,7 @@
     "cors": "^2.8.6",
     "flowbite": "^4.0.2",
     "flowbite-react": "^0.12.17",
-    "framer-motion": "^12.40.0",
+    "framer-motion": "^12.41.0",
     "lucide-react": "^1.18.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
