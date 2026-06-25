@@ -5,12 +5,27 @@ import {
   Clock,
   LogOut,
   LayoutDashboard,
+  History,
 } from "lucide-react";
 
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 
+import { useEffect, useState } from "react";
+import api from "../../services/api";
+
 export default function AdminDashboard() {
+
+  const [dados, setDados] = useState({
+    usuarios: 0,
+    espacos: 0,
+    reservas: 0,
+    pendentes: 0
+  });
+
+
+  const [erro, setErro] = useState("");
+
   const { logout, usuario } = useAuth();
   const navigate = useNavigate();
 
@@ -18,6 +33,32 @@ export default function AdminDashboard() {
     logout();
     navigate("/");
   }
+
+  async function carregarDados() {
+    try {
+      const usuarios = await api.get("/usuarios");
+      const espacos = await api.get("/espacos");
+      const reservas = await api.get("/reservas");
+
+      setDados({
+        usuarios: usuarios.data.length,
+        espacos: espacos.data.length,
+        reservas: reservas.data.length,
+        pendentes:
+          reservas.data.filter(
+            (r: any) => r.status === "pendente"
+          ).length
+      });
+    } catch (error) {
+      setErro(
+        "Erro ao carregar dados"
+      );
+    }
+  }
+
+  useEffect(() => {
+    carregarDados();
+  }, []);
 
   return (
     <div className="min-h-screen flex bg-slate-100">
@@ -69,6 +110,14 @@ export default function AdminDashboard() {
             Reservas
           </Link>
 
+          <Link
+            to="/admin/historico"
+            className="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-white/10 transition"
+          >
+            <History size={22} />
+            Histórico
+          </Link>
+
         </nav>
 
         <div className="p-4">
@@ -101,7 +150,7 @@ export default function AdminDashboard() {
             <div className="flex justify-between items-center">
               <Users size={40} className="text-blue-600" />
               <span className="text-4xl font-bold">
-                0
+                {dados.usuarios}
               </span>
             </div>
 
@@ -114,7 +163,7 @@ export default function AdminDashboard() {
             <div className="flex justify-between items-center">
               <Building2 size={40} className="text-green-600" />
               <span className="text-4xl font-bold">
-                0
+                {dados.espacos}
               </span>
             </div>
 
@@ -127,7 +176,7 @@ export default function AdminDashboard() {
             <div className="flex justify-between items-center">
               <CalendarCheck size={40} className="text-purple-600" />
               <span className="text-4xl font-bold">
-                0
+                {dados.reservas}
               </span>
             </div>
 
@@ -140,7 +189,7 @@ export default function AdminDashboard() {
             <div className="flex justify-between items-center">
               <Clock size={40} className="text-orange-500" />
               <span className="text-4xl font-bold">
-                0
+                {dados.pendentes}
               </span>
             </div>
 

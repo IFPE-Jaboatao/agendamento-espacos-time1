@@ -13,6 +13,10 @@ import Usuarios from "./pages/admin/Usuarios";
 
 import { useAuth } from "./context/AuthContext";
 
+import Reservas from "./pages/admin/Reservas";
+
+import HistoricoReservas from "./pages/admin/HistoricoReservas";
+
 function PrivateRoute({
   children,
 }: {
@@ -82,6 +86,26 @@ export default function App() {
           element={
             <AdminRoute>
               <Usuarios />
+            </AdminRoute>
+          }
+        />
+
+        {/* RESERVAS */}
+        <Route
+          path="/admin/reservas"
+          element={
+            <AdminRoute>
+              <Reservas />
+            </AdminRoute>
+          }
+        />
+
+        {/* HISTÓRICO DE RESERVAS */}
+        <Route
+          path="/admin/historico"
+          element={
+            <AdminRoute>
+              <HistoricoReservas />
             </AdminRoute>
           }
         />
