@@ -2,8 +2,6 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-import { FaFacebookF, FaGoogle, FaLinkedinIn } from "react-icons/fa";
-
 import {
   User,
   Lock,
@@ -34,7 +32,15 @@ export default function Login() {
 
       await login(form.login, form.senha);
 
-      navigate("/dashboard");
+      const usuario = JSON.parse(
+        localStorage.getItem("usuario") || "{}"
+      );
+
+      if (usuario.perfil === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (err: any) {
       setErro(
         err.response?.data?.message ||
@@ -62,42 +68,11 @@ export default function Login() {
             Sistema de Agendamento
           </p>
 
-          <h1 className="text-6xl font-extrabold text-black mb-10">
+          <h1 className="text-6xl font-extrabold text-black mb-16">
             ENTRAR
           </h1>
 
-          {/* Redes */}
-          <div className="flex gap-8 mb-10">
-
-            <button className="w-16 h-16 rounded-full bg-[#1877F2] text-white flex items-center justify-center text-3xl shadow-lg hover:scale-110 transition">
-              <FaFacebookF />
-            </button>
-
-            <button className="w-16 h-16 rounded-full bg-white border border-gray-300 text-3xl shadow-lg hover:scale-110 transition">
-              <FaGoogle />
-            </button>
-
-            <button className="w-16 h-16 rounded-full bg-[#0A66C2] text-white flex items-center justify-center text-3xl shadow-lg hover:scale-110 transition">
-              <FaLinkedinIn />
-            </button>
-
-          </div>
-
-          {/* Separador */}
-          <div className="flex items-center w-full max-w-lg mb-8">
-            <div className="flex-1 border-t border-gray-300"></div>
-
-            <span className="mx-6 text-gray-500 text-xl">
-              ou
-            </span>
-
-            <div className="flex-1 border-t border-gray-300"></div>
-          </div>
-
-          <p className="text-gray-500 text-2xl mb-10">
-            use sua conta
-          </p>
-
+         
           <form
             onSubmit={handleSubmit}
             className="w-full max-w-xl"

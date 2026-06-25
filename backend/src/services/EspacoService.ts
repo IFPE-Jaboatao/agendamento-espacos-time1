@@ -26,9 +26,6 @@ export class EspacoService {
    */
   async listarTodos() {
     return repo.find({
-      where: {
-        status: StatusEspaco.ATIVO
-      },
       order: {
         id: "ASC"
       }
