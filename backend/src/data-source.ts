@@ -25,7 +25,7 @@ export const AppDataSource = new DataSource({
 
   migrations: [],
 
-  synchronize: true,
+  synchronize: false,
 
   logging: process.env.DB_LOGGING === "true",
 
