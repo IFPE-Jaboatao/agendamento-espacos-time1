@@ -24,7 +24,7 @@ export default function AdminDashboard() {
   });
 
 
-  const [erro, setErro] = useState("");
+  const [, setErro] = useState("");
 
   const { logout, usuario } = useAuth();
   const navigate = useNavigate();
