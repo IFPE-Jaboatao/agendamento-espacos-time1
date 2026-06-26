@@ -87,14 +87,6 @@ export default function UsuarioDashboard() {
           </Link>
 
           <Link
-            to="/espacos"
-            className="flex items-center gap-3 p-4 rounded-xl hover:bg-white/10 transition"
-          >
-            <Building2 size={22} />
-            Espaços
-          </Link>
-
-          <Link
             to="/reservas"
             className="flex items-center gap-3 p-4 rounded-xl hover:bg-white/10 transition"
           >
@@ -194,45 +186,17 @@ export default function UsuarioDashboard() {
               Reservas Pendentes
             </p>
           </div>
-
         </div>
 
         {/* AÇÕES RÁPIDAS */}
         <div className="mt-10 bg-white rounded-3xl shadow-lg p-8">
-
           <h2 className="text-2xl font-bold mb-6">
             Ações Rápidas
           </h2>
 
-          <div className="grid md:grid-cols-3 gap-6">
-
-            <Link
-              to="/espacos"
-              className="border rounded-2xl p-6 hover:bg-slate-50 transition"
-            >
-              <Building2
-                size={45}
-                className="text-blue-600 mb-4"
-              />
-
-              <h3 className="text-xl font-bold">
-                Ver Espaços
-              </h3>
-
-              <p className="text-slate-500 mt-2">
-                Consulte salas, laboratórios e auditórios disponíveis.
-              </p>
-            </Link>
-
-            <Link
-              to="/reservas"
-              className="border rounded-2xl p-6 hover:bg-slate-50 transition"
-            >
-              <CalendarPlus
-                size={45}
-                className="text-green-600 mb-4"
-              />
-
+          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <Link to="/reservas" className="border rounded-2xl p-6 hover:bg-slate-50 transition">
+              <CalendarPlus size={45} className="text-green-600 mb-4"/>
               <h3 className="text-xl font-bold">
                 Nova Reserva
               </h3>
@@ -242,19 +206,11 @@ export default function UsuarioDashboard() {
               </p>
             </Link>
 
-            <Link
-              to="/minhas-reservas"
-              className="border rounded-2xl p-6 hover:bg-slate-50 transition"
-            >
-              <ClipboardList
-                size={45}
-                className="text-purple-600 mb-4"
-              />
-
+            <Link to="/minhas-reservas" className="border rounded-2xl p-6 hover:bg-slate-50 transition">
+              <ClipboardList size={45} className="text-purple-600 mb-4"/>
               <h3 className="text-xl font-bold">
                 Minhas Reservas
               </h3>
-
               <p className="text-slate-500 mt-2">
                 Consulte o status das suas reservas e acompanhe as solicitações.
               </p>

@@ -30,10 +30,22 @@ interface Espaco {
 
 // Definindo a interface para as reservas, incluindo informações sobre o espaço reservado
 interface Reserva {
+
     id: number;
     dataInicio: string;
     dataFim: string;
-    status: "pendente" | "aprovada" | "recusada" | "cancelada";
+
+    status:
+    "pendente" |
+    "aprovada" |
+    "recusada" |
+    "cancelada";
+
+    solicitante: {
+        id: number;
+        nome: string;
+    };
+
     espaco: {
         id: number;
         nome: string;
@@ -68,6 +80,22 @@ export default function UsuarioReservas() {
     ];
 
 
+    // Gerando eventos para o calendário com base nas reservas existentes
+    const eventos = reservas.map((reserva) => ({
+        id: reserva.id.toString(),
+        title:
+            `${reserva.espaco.nome} - ${reserva.solicitante.nome}`,
+        start: reserva.dataInicio,
+        end: reserva.dataFim,
+        color:
+            reserva.status === "aprovada"
+                ? "#16a34a"
+                : reserva.status === "pendente"
+                    ? "#f59e0b"
+                    : "#dc2626"
+    }));
+
+
     // Função para carregar os dados de espaços e reservas do usuário
     async function carregarDados() {
         try {
@@ -88,8 +116,14 @@ export default function UsuarioReservas() {
             );
         }
     }
+
+    // useEffect para carregar os dados ao montar o componente e configurar um intervalo para atualizar os dados a cada 5 segundos
     useEffect(() => {
         carregarDados();
+        const intervalo = setInterval(() => {
+            carregarDados();
+        }, 5000);
+        return () => clearInterval(intervalo);
     }, []);
 
 
@@ -152,7 +186,9 @@ export default function UsuarioReservas() {
         setCarregando(true);
 
         try {
-            const conflito = reservas.some((r) => {
+            const atualizadas = await api.get("/reservas");
+            const listaReservas = atualizadas.data;
+            const conflito = listaReservas.some((r: any) => {
 
                 if (r.espaco.id !== espacoSelecionado.id) {
                     return false;
@@ -232,29 +268,11 @@ export default function UsuarioReservas() {
     }
 
 
-    // Gerando eventos para o calendário com base nas reservas existentes
-    const eventos = reservas.map((reserva) => ({
-        id: reserva.id.toString(),
-        title: reserva.espaco.nome,
-        start: reserva.dataInicio,
-        end: reserva.dataFim,
-        color:
-            reserva.status === "aprovada"
-                ? "#16a34a"
-                : reserva.status === "pendente"
-                    ? "#f59e0b"
-                    : "#dc2626"
-    }));
-
-
     return (
-
         <div className="min-h-screen flex bg-slate-100">
-
             <aside className="w-72 bg-[#123EA8] text-white flex flex-col">
 
                 <div className="p-8 border-b border-white/20">
-
                     <h1 className="text-2xl font-bold">
                         Painel do Usuário
                     </h1>
@@ -262,55 +280,30 @@ export default function UsuarioReservas() {
                     <p className="text-white/70 mt-2">
                         {usuario?.nome}
                     </p>
-
                 </div>
 
                 <nav className="flex-1 p-4 space-y-2">
-
-                    <Link
-                        to="/dashboard"
-                        className="flex items-center gap-3 p-4 rounded-xl hover:bg-white/10"
-                    >
+                    <Link to="/dashboard" className="flex items-center gap-3 p-4 rounded-xl hover:bg-white/10">
                         <LayoutDashboard size={22} />
                         Dashboard
                     </Link>
 
-                    <Link
-                        to="/espacos"
-                        className="flex items-center gap-3 p-4 rounded-xl hover:bg-white/10"
-                    >
-                        <Building2 size={22} />
-                        Espaços
-                    </Link>
-
-                    <Link
-                        to="/reservas"
-                        className="flex items-center gap-3 p-4 rounded-xl bg-white/20"
-                    >
+                    <Link to="/reservas" className="flex items-center gap-3 p-4 rounded-xl bg-white/20">
                         <CalendarPlus size={22} />
                         Nova Reserva
                     </Link>
 
-                    <Link
-                        to="/minhas-reservas"
-                        className="flex items-center gap-3 p-4 rounded-xl hover:bg-white/10"
-                    >
+                    <Link to="/minhas-reservas" className="flex items-center gap-3 p-4 rounded-xl hover:bg-white/10">
                         <ClipboardList size={22} />
                         Minhas Reservas
                     </Link>
-
                 </nav>
 
                 <div className="p-4">
-
-                    <button
-                        onClick={handleLogout}
-                        className="w-full bg-red-500 hover:bg-red-600 rounded-xl p-4 flex justify-center gap-2"
-                    >
+                    <button onClick={handleLogout} className="w-full bg-red-500 hover:bg-red-600 rounded-xl p-4 flex justify-center gap-2">
                         <LogOut size={20} />
                         Sair
                     </button>
-
                 </div>
 
             </aside>
@@ -326,61 +319,36 @@ export default function UsuarioReservas() {
                 </p>
 
                 {erro && (
-
                     <div className="bg-red-100 text-red-700 p-4 rounded-xl mt-6">
-
                         {erro}
-
                     </div>
-
                 )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mt-8">
-
                     {espacos.map((espaco) => (
 
-                        <div
-                            key={espaco.id}
-                            className="bg-white rounded-3xl shadow-lg p-6"
-                        >
-
+                        <div key={espaco.id} className="bg-white rounded-3xl shadow-lg p-6">
                             <div className="flex justify-between">
 
-                                <Building2
-                                    size={45}
-                                    className="text-blue-600"
-                                />
+                                <Building2 size={45} className="text-blue-600" />
 
-                                <span
-                                    className={
-                                        espaco.status === "ativo"
-                                            ? "text-green-600 font-bold"
-                                            : "text-red-600 font-bold"
-                                    }
-                                >
+                                <span className={espaco.status === "ativo" ? "text-green-600 font-bold" : "text-red-600 font-bold"}>
                                     {espaco.status}
                                 </span>
 
                             </div>
 
                             <h2 className="text-2xl font-bold mt-5">
-
                                 {espaco.nome}
-
                             </h2>
 
                             <p className="text-slate-500 mt-2">
-
                                 Tipo: {espaco.tipo}
-
                             </p>
 
                             <div className="flex items-center gap-2 mt-3">
-
                                 <Users size={18} />
-
                                 {espaco.capacidade} pessoas
-
                             </div>
 
                             <button
@@ -399,40 +367,27 @@ export default function UsuarioReservas() {
                                     ? "Selecionar"
                                     : "Indisponível"}
                             </button>
-
                         </div>
-
                     ))}
 
                 </div>
                 {espacoSelecionado && (
-
                     <div className="bg-white rounded-3xl shadow-lg p-8 mt-10">
-
                         <h2 className="text-3xl font-bold mb-2">
-
                             {espacoSelecionado.nome}
-
                         </h2>
 
                         <p className="text-slate-500">
-
                             Escolha a data da reserva.
-
                         </p>
 
                         <div className="mt-8">
-
                             <label className="font-semibold">
-
                                 Data
-
                             </label>
 
                             <div className="bg-white rounded-2xl shadow-lg p-5 mt-8">
-
                                 <FullCalendar
-
                                     plugins={[
                                         dayGridPlugin,
                                         timeGridPlugin,
@@ -440,63 +395,40 @@ export default function UsuarioReservas() {
                                     ]}
 
                                     locale={ptBrLocale}
-
                                     initialView="timeGridWeek"
-
                                     selectable={true}
-
                                     editable={false}
-
                                     allDaySlot={false}
-
                                     slotMinTime="07:00:00"
-
-                                    slotMaxTime="22:00:00"
-
+                                    slotMaxTime="22:30:00"
                                     height={700}
 
                                     events={
-
                                         eventos.filter(evento => {
-
                                             const reserva = reservas.find(
-
                                                 r => r.id === Number(evento.id)
-
                                             );
-
                                             return reserva?.espaco.id === espacoSelecionado?.id;
-
                                         })
-
                                     }
-
                                     select={handleSelecionarHorario}
-
                                 />
 
                             </div>
-
                         </div>
 
                         {data && (
 
                             <>
-
                                 <h3 className="text-2xl font-bold mt-10 mb-6">
-
                                     Horários disponíveis
-
                                 </h3>
 
                                 <div className="grid grid-cols-4 md:grid-cols-6 xl:grid-cols-8 gap-4">
-
                                     {horariosDisponiveis.map((hora) => {
 
                                         const ocupado = reservas.some((r) => {
-
                                             const inicio = new Date(r.dataInicio);
-
                                             const dia = inicio.toISOString().split("T")[0];
 
                                             const horario = inicio
@@ -508,7 +440,6 @@ export default function UsuarioReservas() {
                                                 dia === data &&
                                                 horario === hora
                                             );
-
                                         });
 
                                         return (
@@ -518,14 +449,13 @@ export default function UsuarioReservas() {
                                                 disabled={ocupado}
                                                 onClick={() => setHoraInicio(hora)}
                                                 className={`rounded-xl p-3 transition
-
-                        ${ocupado
+                                                    ${ocupado
                                                         ? "bg-red-200 cursor-not-allowed text-red-700"
                                                         : horaInicio === hora
                                                             ? "bg-blue-600 text-white"
                                                             : "bg-slate-100 hover:bg-blue-100"
                                                     }
-                        `}
+                                                `}
                                             >
 
                                                 <Clock

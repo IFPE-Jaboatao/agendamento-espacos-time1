@@ -18,17 +18,15 @@ export class ReservaService {
    */
   async listarTodos(usuario: Usuario) {
 
-    if (usuario.perfil === Perfil.ADMIN) {
-      return repo.find({
-        relations: ["solicitante", "espaco"],
-        order: { id: "DESC" }
-      });
-    }
-
     return repo.find({
-      where: { solicitante: { id: usuario.id } },
-      relations: ["solicitante", "espaco"],
-      order: { id: "DESC" }
+      relations: [
+        "solicitante",
+        "espaco"
+      ],
+
+      order: {
+        id: "DESC"
+      }
     });
   }
 

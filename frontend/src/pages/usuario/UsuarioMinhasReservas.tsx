@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, Eye, FileDown, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
+import { useAuth } from "../../context/AuthContext";
 import { jsPDF } from "jspdf";
 
-
+// Definição da interface para representar uma reserva
 interface Reserva {
     id: number;
     dataInicio: string;
@@ -18,9 +19,9 @@ interface Reserva {
     };
 }
 
-
 export default function UsuarioReservas() {
 
+    const { usuario } = useAuth();
     const navigate = useNavigate();
     const [reservas, setReservas] = useState<Reserva[]>([]);
     const [reservasOriginais, setReservasOriginais] = useState<Reserva[]>([]);
@@ -34,9 +35,13 @@ export default function UsuarioReservas() {
     // Função para carregar reservas do usuário
     async function carregarReservas() {
         try {
-            const response =
-                await api.get("/reservas");
-            setReservas(response.data);
+            const response = await api.get("/reservas");
+
+            const minhas = response.data.filter((reserva: any) => {
+                return reserva.solicitante?.id === usuario?.id;
+            });
+
+            setReservas(minhas);
             setReservasOriginais(response.data);
         } catch {
             setErro(
@@ -44,14 +49,17 @@ export default function UsuarioReservas() {
             );
         }
     }
+    
     useEffect(() => {
-        carregarReservas();
-    }, []);
+        if (usuario) {
+            carregarReservas();
+        }
+    }, [usuario]);
 
 
     // Função para buscar reservas com base nos filtros aplicados
     function buscar() {
-    
+
         let lista = [...reservasOriginais];
 
         // Busca por ID
