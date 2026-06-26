@@ -1,101 +1,106 @@
 services:
+
   mysql:
     image: mysql:8.4
     restart: unless-stopped
+
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
-      - --log_bin_trust_function_creators=1
+
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-agenda_espacos}
-      MYSQL_USER: ${MYSQL_USER:-root}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-root}
+      MYSQL_ROOT_PASSWORD: senha!@
+      MYSQL_DATABASE: agendamento_espacos
+      MYSQL_USER: app_user
+      MYSQL_PASSWORD: senha!@
+
     volumes:
       - mysql_data:/var/lib/mysql
+
     networks:
       - dokploy-network
+
     expose:
       - "3306"
-    healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD || exit 1"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-      start_period: 40s
 
-  # Opcional: painel SQL. Restrinja por domínio/IP no Traefik do Dokploy ou remova em produção estrita.
-  adminer:
-    image: adminer:latest
-    restart: unless-stopped
-    environment:
-      ADMINER_DEFAULT_SERVER: mysql
-    depends_on:
-      mysql:
-        condition: service_healthy
-    networks:
-      - dokploy-network
-    expose:
-      - "8080"
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
+
     restart: unless-stopped
+
     environment:
+
       NODE_ENV: production
-      PORT: "3001"
+
+      PORT: "3000"
+
       DB_HOST: mysql
       DB_PORT: "3306"
-      DB_USER: ${MYSQL_USER:-root}
-      DB_PASS: ${MYSQL_PASSWORD:-root}
-      DB_NAME: ${MYSQL_DATABASE:-agenda_espacos}
-      DB_LOGGING: ${DB_LOGGING:-false}
-      JWT_SECRET: ${JWT_SECRET:-changeme}
-      # URL pública do frontend (CORS / links); defina quando o frontend existir
-      FRONTEND_URL: ${FRONTEND_URL:-}
+
+      DB_USER: app_user
+      DB_PASS: senha!@
+
+      DB_NAME: agendamento_espacos
+
+      DB_LOGGING: false
+
+      JWT_SECRET: 9f3c2a7b8d6e4f1c9a0d8b7e6f5c4a3d2b1e0f9c8a7b6d5c4
+
+      FRONTEND_URL: https://agendamentos1.lab7.cloud
+
+
     networks:
       - dokploy-network
+
+
     depends_on:
       mysql:
         condition: service_healthy
-    expose:
-      - "3001"
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3001/ >/dev/null || exit 1"]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 60s
 
-  # --- Frontend (Vite/React): descomente quando ./frontend existir com Dockerfile ---
+
+    expose:
+      - "3000"
+
+
+
   frontend:
+
     build:
       context: ./frontend
       dockerfile: Dockerfile
+
       args:
-        VITE_API_URL: ${VITE_API_URL:-/api}
-    environment:
-      VITE_API_URL: ${VITE_API_URL:-/api}
+
+        VITE_API_URL: https://api-agendamentos1.lab7.cloud/api
+
+
     restart: unless-stopped
+
+
     networks:
       - dokploy-network
+
+
     depends_on:
       backend:
         condition: service_healthy
+
+
     expose:
       - "80"
-    healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:80/ || exit 1"]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 60s
+
+
 
 volumes:
+
   mysql_data:
 
+
 networks:
+
   dokploy-network:
+
     external: true
