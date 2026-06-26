@@ -10,14 +10,11 @@ yarn-debug.log*
 yarn-error.log*
 
 # Environment variables
-# .env
-
-# # Variáveis de ambiente (se usar .env no front)
-# .env
-# .env.local
-# .env.development.local
-# .env.test.local
-# .env.production.local
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # IDEs e Editores
 .vscode/
