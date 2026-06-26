@@ -1,9 +1,6 @@
 # Dependências
 node_modules/
 
-# Build do Vite
-dist/
-
 # Logs
 npm-debug.log*
 yarn-debug.log*
