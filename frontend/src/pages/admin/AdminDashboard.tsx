@@ -202,52 +202,6 @@ export default function AdminDashboard() {
           </div>
 
         </div>
-
-        {/* ÚLTIMAS RESERVAS */}
-        <div className="mt-10 bg-white rounded-3xl shadow-lg p-8">
-
-          <h2 className="text-2xl font-bold mb-4">
-            Últimas Reservas
-          </h2>
-
-          <div className="overflow-x-auto">
-
-            <table className="w-full">
-
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left p-4">
-                    Usuário
-                  </th>
-
-                  <th className="text-left p-4">
-                    Espaço
-                  </th>
-
-                  <th className="text-left p-4">
-                    Data
-                  </th>
-
-                  <th className="text-left p-4">
-                    Status
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody>
-                <tr>
-                  <td className="p-4">
-                    Nenhuma reserva encontrada
-                  </td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-              </tbody>
-
-            </table>
-          </div>
-        </div>
       </main>
     </div>
   );
