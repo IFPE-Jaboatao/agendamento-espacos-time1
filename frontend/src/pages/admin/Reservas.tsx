@@ -3,224 +3,196 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Check, X, Ban } from "lucide-react";
 import api from "../../services/api";
 
-
 interface Reserva {
-
-id:number;
-
-dataInicio:string;
-
-dataFim:string;
-
-status:string;
-
-motivo?:string;
-
-solicitante:{
- nome:string;
-};
-
-espaco:{
- nome:string;
-};
-
+    id: number;
+    dataInicio: string;
+    dataFim: string;
+    status: string;
+    motivo?: string;
+    solicitante: {
+        nome: string;
+    };
+    espaco: {
+        nome: string;
+    };
 }
 
+export default function Reservas() {
 
+    const navigate = useNavigate();
+    const [reservas, setReservas] = useState<Reserva[]>([]);
+    const [erro, setErro] = useState("");
+    const [sucesso, setSucesso] = useState("");
 
-export default function Reservas(){
+    async function carregarReservas() {
 
 
-const navigate = useNavigate();
+        try {
 
 
+            const response =
+                await api.get("/reservas");
 
-const [reservas,setReservas] =
-useState<Reserva[]>([]);
 
+            setReservas(response.data);
 
 
-const [erro,setErro] =
-useState("");
 
+        } catch (error) {
 
 
-const [sucesso,setSucesso] =
-useState("");
+            setErro(
+                "Erro ao carregar reservas"
+            );
 
 
+        }
 
 
+    }
 
-async function carregarReservas(){
 
 
-try{
 
 
-const response =
-await api.get("/reservas");
+    useEffect(() => {
 
 
-setReservas(response.data);
+        carregarReservas();
 
 
+    }, []);
 
-}catch(error){
 
 
-setErro(
-"Erro ao carregar reservas"
-);
 
 
-}
 
 
-}
+    async function alterarStatus(
+        id: number,
+        acao: string
+    ) {
 
 
+        setErro("");
+        setSucesso("");
 
 
 
-useEffect(()=>{
+        try {
 
 
-carregarReservas();
+            await api.patch(
 
+                `/reservas/${id}/${acao}`
 
-},[]);
+            );
 
 
 
+            if (acao === "aprovar") {
 
+                setSucesso(
+                    "Reserva aprovada"
+                );
 
+            }
 
 
-async function alterarStatus(
-id:number,
-acao:string
-){
+            if (acao === "recusar") {
 
+                setSucesso(
+                    "Reserva recusada"
+                );
 
-setErro("");
-setSucesso("");
+            }
 
 
+            if (acao === "cancelar") {
 
-try{
+                setSucesso(
+                    "Reserva cancelada"
+                );
 
+            }
 
-await api.patch(
 
-`/reservas/${id}/${acao}`
 
-);
+            carregarReservas();
 
 
 
-if(acao==="aprovar"){
+        } catch (error: any) {
 
-setSucesso(
-"Reserva aprovada"
-);
 
-}
 
+            setErro(
 
-if(acao==="recusar"){
+                error.response?.data?.message ||
 
-setSucesso(
-"Reserva recusada"
-);
+                "Erro ao alterar reserva"
 
-}
+            );
 
 
-if(acao==="cancelar"){
+        }
 
-setSucesso(
-"Reserva cancelada"
-);
 
-}
 
+    }
 
 
-carregarReservas();
 
 
 
-}catch(error:any){
 
 
 
-setErro(
+    function formatarData(
+        data: string
+    ) {
 
-error.response?.data?.message ||
 
-"Erro ao alterar reserva"
+        return new Date(data)
+            .toLocaleString(
+                "pt-BR"
+            );
 
-);
 
+    }
 
-}
 
 
 
-}
 
 
 
 
+    return (
 
 
+        <div className="p-8 bg-slate-100 min-h-screen">
 
 
-function formatarData(
-data:string
-){
 
+            <div className="flex justify-between items-center mb-6">
 
-return new Date(data)
-.toLocaleString(
-"pt-BR"
-);
 
+                <h1 className="text-3xl font-bold">
 
-}
+                    Gerenciamento de Reservas
 
+                </h1>
 
 
 
 
+                <button
 
+                    onClick={() => navigate("/admin")}
 
-
-return(
-
-
-<div className="p-8 bg-slate-100 min-h-screen">
-
-
-
-<div className="flex justify-between items-center mb-6">
-
-
-<h1 className="text-3xl font-bold">
-
-Gerenciamento de Reservas
-
-</h1>
-
-
-
-
-<button
-
-onClick={()=>navigate("/admin")}
-
-className="
+                    className="
 flex
 items-center
 gap-2
@@ -231,30 +203,30 @@ py-3
 rounded-xl
 "
 
->
+                >
 
 
-<ArrowLeft size={20}/>
+                    <ArrowLeft size={20} />
 
-Voltar
-
-
-</button>
+                    Voltar
 
 
-
-</div>
+                </button>
 
 
 
+            </div>
 
 
 
 
 
-{erro && (
 
-<div className="
+
+
+            {erro && (
+
+                <div className="
 bg-red-100
 text-red-700
 p-4
@@ -262,20 +234,20 @@ rounded-xl
 mb-4
 ">
 
-❌ {erro}
+                    ❌ {erro}
 
-</div>
+                </div>
 
-)}
-
-
+            )}
 
 
 
 
-{sucesso && (
 
-<div className="
+
+            {sucesso && (
+
+                <div className="
 bg-green-100
 text-green-700
 p-4
@@ -283,13 +255,11 @@ rounded-xl
 mb-4
 ">
 
-✅ {sucesso}
+                    ✅ {sucesso}
 
-</div>
+                </div>
 
-)}
-
-
+            )}
 
 
 
@@ -297,7 +267,9 @@ mb-4
 
 
 
-<div className="
+
+
+            <div className="
 bg-white
 rounded-2xl
 shadow
@@ -305,55 +277,55 @@ overflow-hidden
 ">
 
 
-<table className="w-full">
+                <table className="w-full">
 
 
 
-<thead className="bg-slate-100">
+                    <thead className="bg-slate-100">
 
 
-<tr>
+                        <tr>
 
 
-<th className="p-4 text-left">
-Usuário
-</th>
+                            <th className="p-4 text-left">
+                                Usuário
+                            </th>
 
 
-<th className="p-4 text-left">
-Espaço
-</th>
+                            <th className="p-4 text-left">
+                                Espaço
+                            </th>
 
 
-<th className="p-4 text-left">
-Início
-</th>
+                            <th className="p-4 text-left">
+                                Início
+                            </th>
 
 
-<th className="p-4 text-left">
-Fim
-</th>
+                            <th className="p-4 text-left">
+                                Fim
+                            </th>
 
 
-<th className="p-4 text-left">
-Status
-</th>
+                            <th className="p-4 text-left">
+                                Status
+                            </th>
 
 
-<th className="p-4 text-left">
-Motivo
-</th>
+                            <th className="p-4 text-left">
+                                Motivo
+                            </th>
 
 
-<th className="p-4">
-Ações
-</th>
+                            <th className="p-4">
+                                Ações
+                            </th>
 
 
-</tr>
+                        </tr>
 
 
-</thead>
+                    </thead>
 
 
 
@@ -361,229 +333,227 @@ Ações
 
 
 
-<tbody>
+                    <tbody>
 
 
 
-{
-reservas.length === 0 ? (
+                        {
+                            reservas.length === 0 ? (
 
 
-<tr>
+                                <tr>
 
-<td
-colSpan={7}
-className="p-6 text-center"
->
+                                    <td
+                                        colSpan={7}
+                                        className="p-6 text-center"
+                                    >
 
-Nenhuma reserva encontrada
+                                        Nenhuma reserva encontrada
 
-</td>
+                                    </td>
 
-</tr>
+                                </tr>
 
 
 
-):
+                            ) :
 
-reservas.map(reserva=>(
+                                reservas.map(reserva => (
 
 
-<tr
-key={reserva.id}
-className="border-t"
->
+                                    <tr
+                                        key={reserva.id}
+                                        className="border-t"
+                                    >
 
 
-<td className="p-4">
+                                        <td className="p-4">
 
-{reserva.solicitante?.nome}
+                                            {reserva.solicitante?.nome}
 
-</td>
+                                        </td>
 
 
 
 
-<td className="p-4">
+                                        <td className="p-4">
 
-{reserva.espaco?.nome}
+                                            {reserva.espaco?.nome}
 
-</td>
+                                        </td>
 
 
 
 
-<td className="p-4">
+                                        <td className="p-4">
 
-{formatarData(
-reserva.dataInicio
-)}
+                                            {formatarData(
+                                                reserva.dataInicio
+                                            )}
 
-</td>
+                                        </td>
 
 
 
 
-<td className="p-4">
+                                        <td className="p-4">
 
-{formatarData(
-reserva.dataFim
-)}
+                                            {formatarData(
+                                                reserva.dataFim
+                                            )}
 
-</td>
+                                        </td>
 
 
 
 
 
-<td className="p-4">
+                                        <td className="p-4">
 
-{reserva.status}
+                                            {reserva.status}
 
-</td>
+                                        </td>
 
 
 
 
-<td className="p-4">
+                                        <td className="p-4">
 
-{reserva.motivo || "-"}
+                                            {reserva.motivo || "-"}
 
-</td>
+                                        </td>
 
 
 
 
 
-<td className="p-4">
+                                        <td className="p-4">
 
 
-<div className="flex gap-2 justify-center">
+                                            <div className="flex gap-2 justify-center">
 
 
 
 
 
-<button
+                                                <button
 
-onClick={()=>
-alterarStatus(
-reserva.id,
-"aprovar"
-)
-}
+                                                    onClick={() =>
+                                                        alterarStatus(
+                                                            reserva.id,
+                                                            "aprovar"
+                                                        )
+                                                    }
 
-className="
+                                                    className="
 bg-green-600
 text-white
 p-2
 rounded
 "
 
->
+                                                >
 
-<Check size={18}/>
+                                                    <Check size={18} />
 
-</button>
-
-
+                                                </button>
 
 
 
 
 
-<button
 
-onClick={()=>
-alterarStatus(
-reserva.id,
-"recusar"
-)
-}
 
-className="
+                                                <button
+
+                                                    onClick={() =>
+                                                        alterarStatus(
+                                                            reserva.id,
+                                                            "recusar"
+                                                        )
+                                                    }
+
+                                                    className="
 bg-red-600
 text-white
 p-2
 rounded
 "
 
->
+                                                >
 
-<X size={18}/>
+                                                    <X size={18} />
 
-</button>
-
-
+                                                </button>
 
 
 
 
 
 
-<button
 
-onClick={()=>
-alterarStatus(
-reserva.id,
-"cancelar"
-)
-}
 
-className="
+                                                <button
+
+                                                    onClick={() =>
+                                                        alterarStatus(
+                                                            reserva.id,
+                                                            "cancelar"
+                                                        )
+                                                    }
+
+                                                    className="
 bg-gray-600
 text-white
 p-2
 rounded
 "
 
->
+                                                >
 
 
-<Ban size={18}/>
+                                                    <Ban size={18} />
 
 
-</button>
-
-
-
-
-
-</div>
-
-
-</td>
+                                                </button>
 
 
 
 
-</tr>
+
+                                            </div>
 
 
-))
-
-
-}
-
-
-
-</tbody>
-
-
-
-</table>
-
-
-
-</div>
+                                        </td>
 
 
 
 
-</div>
+                                    </tr>
 
 
-);
+                                ))
 
 
+                        }
+
+
+
+                    </tbody>
+
+
+
+                </table>
+
+
+
+            </div>
+
+
+
+
+        </div>
+
+
+    );
 }

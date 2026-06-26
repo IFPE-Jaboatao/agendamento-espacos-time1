@@ -29,6 +29,7 @@ export default function Espacos() {
     status: "ativo"
   });
 
+  // Carregar espaços
   async function carregarEspacos() {
     try {
       setLoading(true);
@@ -47,7 +48,6 @@ export default function Espacos() {
   useEffect(() => {
     carregarEspacos();
   }, []);
-
 
 
   // Salvar e Atualizar Espaco
@@ -102,11 +102,10 @@ export default function Espacos() {
     }
   }
 
+
   // Editar Espaco
   function editarEspaco(espaco: Espaco) {
-
     setEditando(espaco.id);
-
     setForm({
       nome: espaco.nome,
       tipo: espaco.tipo,
@@ -117,35 +116,27 @@ export default function Espacos() {
 
   }
 
+
   // Excluir Espaco
   async function excluirEspaco(id: number) {
-
     setErro("");
     setSucesso("");
-
     if (!confirm("Excluir este espaço?"))
       return;
-
-
     try {
-
       await api.delete(`/espacos/${id}`);
-
       setSucesso("Espaço removido");
-
       carregarEspacos();
-
     } catch (error: any) {
-
       setErro(
         error.response?.data?.message ||
         "Erro ao excluir espaço"
       );
-
     }
-
   }
 
+
+  // Render
   return (
 
     <div className="p-8 bg-slate-100 min-h-screen">
@@ -183,7 +174,6 @@ export default function Espacos() {
         <h2 className="text-xl font-bold mb-4">
           {editando ? "Editar espaço" : "Cadastrar espaço"}
         </h2>
-
 
         <div className="grid md:grid-cols-5 gap-3">
 
@@ -250,7 +240,6 @@ export default function Espacos() {
 
         </button>
 
-
       </div>
 
       <div className="bg-white rounded-2xl shadow overflow-hidden">
@@ -270,7 +259,6 @@ export default function Espacos() {
 
           <tbody>
 
-
             {loading ? (
 
               <tr>
@@ -280,7 +268,6 @@ export default function Espacos() {
               </tr>
 
             ) : espacos.map((espaco) => (
-
 
               <tr key={espaco.id} className="border-t">
                 <td className="p-4">
@@ -322,12 +309,8 @@ export default function Espacos() {
             ))}
 
           </tbody>
-
         </table>
-
       </div>
-
     </div>
-    
   );
 }

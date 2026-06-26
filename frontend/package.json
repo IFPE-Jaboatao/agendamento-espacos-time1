@@ -10,12 +10,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fullcalendar/core": "^6.1.21",
+    "@fullcalendar/daygrid": "^6.1.21",
+    "@fullcalendar/interaction": "^6.1.21",
+    "@fullcalendar/react": "^6.1.21",
+    "@fullcalendar/timegrid": "^6.1.21",
     "@tailwindcss/vite": "^4.3.1",
     "axios": "^1.16.1",
     "cors": "^2.8.6",
     "flowbite": "^4.0.2",
     "flowbite-react": "^0.12.17",
     "framer-motion": "^12.41.0",
+    "jspdf": "^4.2.1",
     "lucide-react": "^1.18.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",

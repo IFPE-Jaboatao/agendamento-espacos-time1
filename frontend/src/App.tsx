@@ -17,6 +17,12 @@ import Reservas from "./pages/admin/Reservas";
 
 import HistoricoReservas from "./pages/admin/HistoricoReservas";
 
+import UsuarioDashboard from "./pages/usuario/UsuarioDashboard";
+
+import UsuarioReservas from "./pages/usuario/UsuarioReservas";
+
+import UsuarioMinhasReservas from "./pages/usuario/UsuarioMinhasReservas";
+
 function PrivateRoute({
   children,
 }: {
@@ -46,18 +52,6 @@ export default function App() {
         <Route
           path="/cadastro"
           element={<Cadastro />}
-        />
-
-        {/* DASHBOARD USUÁRIO */}
-        <Route
-          path="/dashboard"
-          element={
-            <PrivateRoute>
-              <div className="p-6">
-                Dashboard Usuário
-              </div>
-            </PrivateRoute>
-          }
         />
 
         {/* DASHBOARD ADMIN */}
@@ -107,6 +101,36 @@ export default function App() {
             <AdminRoute>
               <HistoricoReservas />
             </AdminRoute>
+          }
+        />
+
+        {/* DASHBOARD USUÁRIO */}
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <UsuarioDashboard />
+            </PrivateRoute>
+          }
+        />
+
+        {/* RESERVAS USUÁRIO */}
+        <Route
+          path="/reservas"
+          element={
+            <PrivateRoute>
+              <UsuarioReservas />
+            </PrivateRoute>
+          }
+        />
+
+        {/* MINHAS RESERVAS USUÁRIO */}
+        <Route
+          path="/minhas-reservas"
+          element={
+            <PrivateRoute>
+              <UsuarioMinhasReservas />
+            </PrivateRoute>
           }
         />
 

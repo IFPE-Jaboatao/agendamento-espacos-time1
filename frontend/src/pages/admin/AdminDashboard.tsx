@@ -34,6 +34,7 @@ export default function AdminDashboard() {
     navigate("/");
   }
 
+  // Carregar dados do dashboard
   async function carregarDados() {
     try {
       const usuarios = await api.get("/usuarios");
@@ -60,6 +61,8 @@ export default function AdminDashboard() {
     carregarDados();
   }, []);
 
+
+  // Render
   return (
     <div className="min-h-screen flex bg-slate-100">
 
@@ -243,13 +246,9 @@ export default function AdminDashboard() {
               </tbody>
 
             </table>
-
           </div>
-
         </div>
-
       </main>
-
     </div>
   );
 }

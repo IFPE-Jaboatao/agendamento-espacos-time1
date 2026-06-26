@@ -5,53 +5,49 @@ import api from "../../services/api";
 
 
 interface LogReserva {
-
-id:number;
-
-status:string;
-
-log:string[];
-
-dataCriacao:string;
+    id: number;
+    status: string;
+    log: string[];
+    dataCriacao: string;
 
 }
 
 
 
-export default function HistoricoReservas(){
+export default function HistoricoReservas() {
 
 
-const navigate = useNavigate();
+    const navigate = useNavigate();
 
 
 
-const [idReserva,setIdReserva] =
-useState("");
+    const [idReserva, setIdReserva] =
+        useState("");
 
 
 
-const [inicio,setInicio] =
-useState("");
+    const [inicio, setInicio] =
+        useState("");
 
 
 
-const [fim,setFim] =
-useState("");
+    const [fim, setFim] =
+        useState("");
 
 
 
-const [historico,setHistorico] =
-useState<any[]>([]);
+    const [historico, setHistorico] =
+        useState<any[]>([]);
 
 
 
-const [erro,setErro] =
-useState("");
+    const [erro, setErro] =
+        useState("");
 
 
 
-const [sucesso,setSucesso] =
-useState("");
+    const [sucesso, setSucesso] =
+        useState("");
 
 
 
@@ -59,67 +55,67 @@ useState("");
 
 
 
-async function buscarPorId(){
+    async function buscarPorId() {
 
 
-setErro("");
-setSucesso("");
+        setErro("");
+        setSucesso("");
 
 
 
-if(!idReserva){
+        if (!idReserva) {
 
-setErro(
-"Informe o ID da reserva"
-);
+            setErro(
+                "Informe o ID da reserva"
+            );
 
-return;
+            return;
 
-}
+        }
 
 
 
-try{
+        try {
 
 
-const response = await api.get(
+            const response = await api.get(
 
-`/reservas/${idReserva}/log`
+                `/reservas/${idReserva}/log`
 
-);
+            );
 
 
 
-setHistorico(
-response.data
-);
+            setHistorico(
+                response.data
+            );
 
 
 
-setSucesso(
-"Histórico carregado"
-);
+            setSucesso(
+                "Histórico carregado"
+            );
 
 
 
-}catch(error:any){
+        } catch (error: any) {
 
 
-setErro(
+            setErro(
 
-error.response?.data?.message ||
+                error.response?.data?.message ||
 
-"Reserva não encontrada"
+                "Reserva não encontrada"
 
-);
+            );
 
 
 
-}
+        }
 
 
 
-}
+    }
 
 
 
@@ -127,98 +123,98 @@ error.response?.data?.message ||
 
 
 
-async function buscarPeriodo(){
+    async function buscarPeriodo() {
 
 
 
-setErro("");
-setSucesso("");
+        setErro("");
+        setSucesso("");
 
 
 
-if(!inicio || !fim){
+        if (!inicio || !fim) {
 
 
-setErro(
-"Informe a data inicial e final"
-);
+            setErro(
+                "Informe a data inicial e final"
+            );
 
 
-return;
+            return;
 
-}
+        }
 
 
 
 
 
-try{
+        try {
 
 
-const response = await api.get(
+            const response = await api.get(
 
-"/reservas/historico/periodo",
+                "/reservas/historico/periodo",
 
-{
+                {
 
-params:{
+                    params: {
 
-inicio,
-fim
+                        inicio,
+                        fim
 
-}
+                    }
 
-}
+                }
 
-);
+            );
 
 
 
-setHistorico(
-response.data
-);
+            setHistorico(
+                response.data
+            );
 
 
 
-setSucesso(
-"Histórico por período carregado"
-);
+            setSucesso(
+                "Histórico por período carregado"
+            );
 
 
 
-}catch(error:any){
+        } catch (error: any) {
 
 
-setErro(
+            setErro(
 
-error.response?.data?.message ||
+                error.response?.data?.message ||
 
-"Erro ao buscar histórico"
+                "Erro ao buscar histórico"
 
-);
+            );
 
 
-}
+        }
 
 
 
-}
+    }
 
 
 
 
 
 
-function formatarData(data:string){
+    function formatarData(data: string) {
 
 
-return new Date(data)
-.toLocaleString(
-"pt-BR"
-);
+        return new Date(data)
+            .toLocaleString(
+                "pt-BR"
+            );
 
 
-}
+    }
 
 
 
@@ -226,29 +222,29 @@ return new Date(data)
 
 
 
-return(
+    return (
 
 
-<div className="p-8 bg-slate-100 min-h-screen">
+        <div className="p-8 bg-slate-100 min-h-screen">
 
 
 
-<div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center mb-6">
 
 
-<h1 className="text-3xl font-bold">
+                <h1 className="text-3xl font-bold">
 
-Histórico de Reservas
+                    Histórico de Reservas
 
-</h1>
+                </h1>
 
 
 
-<button
+                <button
 
-onClick={()=>navigate("/admin")}
+                    onClick={() => navigate("/admin")}
 
-className="
+                    className="
 bg-slate-700
 text-white
 px-5
@@ -259,28 +255,28 @@ gap-2
 items-center
 "
 
->
+                >
 
 
-<ArrowLeft size={20}/>
+                    <ArrowLeft size={20} />
 
-Voltar
-
-
-</button>
+                    Voltar
 
 
-</div>
+                </button>
 
 
-
+            </div>
 
 
 
 
-{erro && (
 
-<div className="
+
+
+            {erro && (
+
+                <div className="
 bg-red-100
 text-red-700
 p-4
@@ -288,19 +284,19 @@ rounded-xl
 mb-4
 ">
 
-❌ {erro}
+                    ❌ {erro}
 
-</div>
+                </div>
 
-)}
-
-
+            )}
 
 
 
-{sucesso && (
 
-<div className="
+
+            {sucesso && (
+
+                <div className="
 bg-green-100
 text-green-700
 p-4
@@ -308,19 +304,19 @@ rounded-xl
 mb-4
 ">
 
-✅ {sucesso}
+                    ✅ {sucesso}
 
-</div>
+                </div>
 
-)}
-
-
+            )}
 
 
 
 
 
-<div className="
+
+
+            <div className="
 grid
 md:grid-cols-2
 gap-6
@@ -332,7 +328,7 @@ mb-8
 
 
 
-<div className="
+                <div className="
 bg-white
 p-6
 rounded-2xl
@@ -340,79 +336,79 @@ shadow
 ">
 
 
-<h2 className="font-bold text-xl mb-4">
+                    <h2 className="font-bold text-xl mb-4">
 
-Buscar por ID
+                        Buscar por ID
 
-</h2>
-
-
-<div className="flex gap-3">
+                    </h2>
 
 
-<input
+                    <div className="flex gap-3">
 
-className="
+
+                        <input
+
+                            className="
 border
 rounded-xl
 p-3
 flex-1
 "
 
-type="number"
+                            type="number"
 
-placeholder="ID da reserva"
+                            placeholder="ID da reserva"
 
-value={idReserva}
+                            value={idReserva}
 
-onChange={e=>
+                            onChange={e =>
 
-setIdReserva(
-e.target.value
-)
+                                setIdReserva(
+                                    e.target.value
+                                )
 
-}
+                            }
 
-/>
+                        />
 
 
 
-<button
+                        <button
 
-onClick={buscarPorId}
+                            onClick={buscarPorId}
 
-className="
+                            className="
 bg-blue-600
 text-white
 px-5
 rounded-xl
 "
 
->
+                        >
 
 
-<Search size={20}/>
+                            <Search size={20} />
 
 
-</button>
-
-
-
-</div>
+                        </button>
 
 
 
-</div>
+                    </div>
 
 
 
+                </div>
 
 
 
 
 
 
-<div className="
+
+
+
+                <div className="
 bg-white
 p-6
 rounded-2xl
@@ -420,111 +416,111 @@ shadow
 ">
 
 
-<h2 className="font-bold text-xl mb-4">
+                    <h2 className="font-bold text-xl mb-4">
 
-Buscar por período
+                        Buscar por período
 
-</h2>
-
-
-
-
-<div className="flex gap-3">
+                    </h2>
 
 
 
-<input
 
-type="date"
+                    <div className="flex gap-3">
 
-className="
+
+
+                        <input
+
+                            type="date"
+
+                            className="
 border
 rounded-xl
 p-3
 "
 
-value={inicio}
+                            value={inicio}
 
-onChange={e=>
+                            onChange={e =>
 
-setInicio(
-e.target.value
-)
+                                setInicio(
+                                    e.target.value
+                                )
 
-}
+                            }
 
-/>
-
-
+                        />
 
 
-<input
 
-type="date"
 
-className="
+                        <input
+
+                            type="date"
+
+                            className="
 border
 rounded-xl
 p-3
 "
 
-value={fim}
+                            value={fim}
 
-onChange={e=>
+                            onChange={e =>
 
-setFim(
-e.target.value
-)
+                                setFim(
+                                    e.target.value
+                                )
 
-}
+                            }
 
-/>
-
-
+                        />
 
 
 
-<button
 
-onClick={buscarPeriodo}
 
-className="
+                        <button
+
+                            onClick={buscarPeriodo}
+
+                            className="
 bg-blue-600
 text-white
 px-5
 rounded-xl
 "
 
->
+                        >
 
 
-<Search size={20}/>
+                            <Search size={20} />
 
 
-</button>
-
-
-
-</div>
+                        </button>
 
 
 
-
-</div>
-
-
-
-</div>
+                    </div>
 
 
 
+
+                </div>
+
+
+
+            </div>
 
 
 
 
 
 
-<div className="
+
+
+
+            <div className="
 bg-white
 rounded-2xl
 shadow
@@ -532,40 +528,40 @@ overflow-hidden
 ">
 
 
-<table className="w-full">
+                <table className="w-full">
 
 
 
-<thead className="bg-slate-100">
+                    <thead className="bg-slate-100">
 
 
-<tr>
+                        <tr>
 
 
-<th className="p-4 text-left">
-ID
-</th>
+                            <th className="p-4 text-left">
+                                ID
+                            </th>
 
 
-<th className="p-4 text-left">
-Status
-</th>
+                            <th className="p-4 text-left">
+                                Status
+                            </th>
 
 
-<th className="p-4 text-left">
-Data
-</th>
+                            <th className="p-4 text-left">
+                                Data
+                            </th>
 
 
-<th className="p-4 text-left">
-Histórico
-</th>
+                            <th className="p-4 text-left">
+                                Histórico
+                            </th>
 
 
-</tr>
+                        </tr>
 
 
-</thead>
+                    </thead>
 
 
 
@@ -573,130 +569,130 @@ Histórico
 
 
 
-<tbody>
+                    <tbody>
 
 
 
-{
-historico.length === 0 ? (
+                        {
+                            historico.length === 0 ? (
 
 
-<tr>
+                                <tr>
 
-<td
+                                    <td
 
-colSpan={4}
+                                        colSpan={4}
 
-className="p-6 text-center"
+                                        className="p-6 text-center"
 
->
+                                    >
 
-Nenhum histórico encontrado
+                                        Nenhum histórico encontrado
 
-</td>
+                                    </td>
 
 
-</tr>
+                                </tr>
 
 
 
-):
+                            ) :
 
-historico.map((item:any,index)=>(
+                                historico.map((item: any, index) => (
 
 
-<tr
-key={index}
-className="border-t"
->
+                                    <tr
+                                        key={index}
+                                        className="border-t"
+                                    >
 
 
-<td className="p-4">
+                                        <td className="p-4">
 
-{item.id}
+                                            {item.id}
 
-</td>
+                                        </td>
 
 
-<td className="p-4">
+                                        <td className="p-4">
 
-{item.status || "-"}
+                                            {item.status || "-"}
 
-</td>
+                                        </td>
 
 
-<td className="p-4">
+                                        <td className="p-4">
 
-{item.dataCriacao
-?
-formatarData(item.dataCriacao)
-:
-"-"
-}
+                                            {item.dataCriacao
+                                                ?
+                                                formatarData(item.dataCriacao)
+                                                :
+                                                "-"
+                                            }
 
-</td>
+                                        </td>
 
 
 
-<td className="p-4">
+                                        <td className="p-4">
 
 
-{
+                                            {
 
-Array.isArray(item.log)
+                                                Array.isArray(item.log)
 
-?
+                                                    ?
 
-item.log.map(
-((texto:string,i:number)=>(
+                                                    item.log.map(
+                                                        ((texto: string, i: number) => (
 
-<p key={i}>
+                                                            <p key={i}>
 
-• {texto}
+                                                                • {texto}
 
-</p>
+                                                            </p>
 
-))
+                                                        ))
 
-)
+                                                    )
 
-:
+                                                    :
 
-item.log
+                                                    item.log
 
-}
+                                            }
 
 
 
-</td>
+                                        </td>
 
 
-</tr>
+                                    </tr>
 
 
-))
+                                ))
 
 
-}
+                        }
 
 
 
-</tbody>
+                    </tbody>
 
 
 
-</table>
+                </table>
 
 
 
-</div>
+            </div>
 
 
 
-</div>
+        </div>
 
 
-);
+    );
 
 
 }
