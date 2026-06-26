@@ -13,23 +13,24 @@ export class ReservaController {
    * GET /reservas
    */
   async listarReservas(req: Request, res: Response) {
-  try {
+    try {
 
-    const reservas = await this.service.listarTodos(
-      req.user
-    );
+      const reservas = await this.service.listarTodos(
+        req.user
+      );
 
-    return res.json(reservas);
+      return res.json(reservas);
 
-  } catch (err: any) {
+    } catch (err: any) {
 
-    return res.status(400).json({
-      error: err.message
-    });
+      return res.status(400).json({
+        error: err.message
+      });
 
+    }
   }
-}
 
+  
   /**
    * BUSCAR POR ID
    * GET /reservas/:id
@@ -47,6 +48,7 @@ export class ReservaController {
       });
     }
   }
+
 
   /**
    * CRIAR RESERVA
@@ -81,6 +83,7 @@ export class ReservaController {
     }
   }
 
+
   /**
    * APROVAR RESERVA
    * PATCH /reservas/:id/aprovar
@@ -103,6 +106,7 @@ export class ReservaController {
     }
   }
 
+
   /**
    * RECUSAR RESERVA
    * PATCH /reservas/:id/recusar
@@ -110,9 +114,7 @@ export class ReservaController {
   async recusarReserva(req: Request, res: Response) {
     try {
       const id = Number(req.params.id);
-
       const { motivo } = req.body;
-
       const result = await this.service.recusar(
         id,
         motivo,
@@ -128,6 +130,7 @@ export class ReservaController {
     }
   }
 
+
   /**
    * CANCELAR RESERVA
    * PATCH /reservas/:id/cancelar
@@ -140,15 +143,14 @@ export class ReservaController {
         id,
         req.user
       );
-
       return res.json(result);
-
     } catch (err: any) {
       return res.status(400).json({
         error: err.message
       });
     }
   }
+
 
   /**
    * HISTÓRICO (LOG DA RESERVA)
@@ -166,6 +168,7 @@ export class ReservaController {
     }
   }
 
+
   /**
   * HISTÓRICO POR PERÍODO
   * GET /reservas/historico?inicio=...&fim=...
@@ -173,15 +176,52 @@ export class ReservaController {
   async historicoPeriodo(req: Request, res: Response) {
     try {
       const { inicio, fim } = req.query;
+      const reservas =
+        await this.service.historicoPorPeriodo(
+          new Date(inicio as string),
+          new Date(fim as string),
+          req.user
+        );
+      return res.json(reservas);
+    } catch (err: any) {
+      return res.status(400).json({
+        error: err.message
+      });
+    }
+  }
 
-      const reservas = await this.service.historicoPorPeriodo(
-        new Date(inicio as string),
-        new Date(fim as string),
-        req.user
-      );
+
+  /**
+   * HISTÓRICO POR USUÁRIO
+   * GET /reservas/historico/usuario?nome=...
+   */
+  async historicoUsuario(req: Request, res: Response) {
+    try {
+      const { nome } = req.query;
+      const reservas =
+        await this.service.historicoUsuario(
+          nome as string,
+          req.user
+        );
 
       return res.json(reservas);
+    } catch (err: any) {
 
+      return res.status(400).json({
+        error: err.message
+      });
+    }
+  }
+
+
+  /**
+   * LISTAR CALENDÁRIO
+   * GET /reservas/calendario
+   */
+  async listarCalendario(req: Request, res: Response) {
+    try {
+      const reservas = await this.service.listarCalendario();
+      return res.json(reservas);
     } catch (err: any) {
       return res.status(400).json({
         error: err.message

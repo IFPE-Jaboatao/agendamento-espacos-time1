@@ -30,6 +30,7 @@ export default function UsuarioReservas() {
     const [dataInicio, setDataInicio] = useState("");
     const [dataFim, setDataFim] = useState("");
     const [erro, setErro] = useState("");
+    const [sucesso, setSucesso] = useState("");
 
 
     // Função para carregar reservas do usuário
@@ -49,7 +50,7 @@ export default function UsuarioReservas() {
             );
         }
     }
-    
+
     useEffect(() => {
         if (usuario) {
             carregarReservas();
@@ -168,6 +169,32 @@ export default function UsuarioReservas() {
         );
     }
 
+
+    // Cancelar Reserva
+    async function cancelarReserva(id: number) {
+        const confirmar = window.confirm(
+            "Deseja cancelar essa reserva?"
+        );
+        if (!confirmar) {
+            return;
+        }
+        try {
+            await api.patch(`/reservas/${id}/cancelar`);
+            setSucesso(
+                "Reserva cancelada com sucesso!"
+            );
+
+            setErro("");
+            setReservaSelecionada(null);
+            await carregarReservas();
+        } catch (error: any) {
+            setErro(
+                error.response?.data?.error ||
+                "Erro ao cancelar reserva"
+            );
+        }
+    }
+
     return (
         <div className="min-h-screen bg-slate-100 p-8">
             <div className="flex justify-between mb-8">
@@ -175,6 +202,21 @@ export default function UsuarioReservas() {
                 <h1 className="text-3xl font-bold">
                     Minhas Reservas
                 </h1>
+
+                {
+                    sucesso && (
+                        <div className="bg-green-100 text-green-700 p-4 rounded-xl mb-5">
+                            {sucesso}
+                        </div>
+                    )
+                }
+                {
+                    erro && (
+                        <div className="bg-red-100 text-red-700 p-4 rounded-xl mb-5">
+                            {erro}
+                        </div>
+                    )
+                }
 
                 <button onClick={() => navigate("/dashboard")} className="bg-slate-700 text-white px-5 py-3 rounded-xl flex gap-2">
                     <ArrowLeft />
@@ -344,6 +386,20 @@ export default function UsuarioReservas() {
                                 <FileDown />
                                 Baixar PDF
                             </button>
+                            {
+                                (reservaSelecionada.status === "pendente" ||
+                                    reservaSelecionada.status === "aprovada") && (
+
+                                    <button
+                                        onClick={() => cancelarReserva(reservaSelecionada.id)}
+                                        className="mt-4 bg-red-600 text-white px-6 py-3 rounded-xl flex gap-2"
+                                    >
+                                        <X />
+                                        Cancelar Reserva
+                                    </button>
+
+                                )
+                            }
                         </div>
                     </div>
                 )

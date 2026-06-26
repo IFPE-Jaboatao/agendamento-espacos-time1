@@ -13,22 +13,39 @@ const espacoRepo = AppDataSource.getRepository(Espaco);
  */
 export class ReservaService {
 
+
   /**
    * LISTAR RESERVAS
    */
   async listarTodos(usuario: Usuario) {
+    if (usuario.perfil === Perfil.ADMIN) {
+      return repo.find({
+        relations: [
+          "solicitante",
+          "espaco"
+        ],
+        order: {
+          id: "DESC"
+        }
+      });
+    }
 
     return repo.find({
+      where: {
+        solicitante: {
+          id: usuario.id
+        }
+      },
       relations: [
         "solicitante",
         "espaco"
       ],
-
       order: {
         id: "DESC"
       }
     });
   }
+
 
   /**
    * BUSCAR POR ID
@@ -39,7 +56,11 @@ export class ReservaService {
 
     const reserva = await repo.findOne({
       where: { id },
-      relations: ["solicitante", "espaco"]
+      relations: [
+        "solicitante",
+        "espaco",
+        "aprovador"
+      ]
     });
 
     if (!reserva) throw new Error("Reserva não encontrada");
@@ -53,6 +74,7 @@ export class ReservaService {
 
     return reserva;
   }
+
 
   /**
    * CRIAR RESERVA
@@ -108,6 +130,7 @@ export class ReservaService {
     return await repo.save(reserva);
   }
 
+
   /**
    * APROVAR RESERVA
    */
@@ -138,6 +161,7 @@ export class ReservaService {
 
     return { message: "Reserva aprovada" };
   }
+
 
   /**
    * RECUSAR RESERVA
@@ -171,6 +195,7 @@ export class ReservaService {
 
     return { message: "Reserva recusada" };
   }
+
 
   /**
    * CANCELAR RESERVA
@@ -209,43 +234,126 @@ export class ReservaService {
    */
   async obterLog(id: number, usuario: Usuario) {
 
-    const reserva = await this.buscarPorId(id, usuario);
+    const reserva = await this.buscarPorId(
+      id,
+      usuario
+    );
 
     return {
       id: reserva.id,
       status: reserva.status,
+      motivo: reserva.motivo,
       descricao: reserva.descricao,
+      solicitante: reserva.solicitante,
+      espaco: reserva.espaco,
+      aprovador: reserva.aprovador,
+      dataInicio: reserva.dataInicio,
+      dataFim: reserva.dataFim,
       log: reserva.log,
       dataCriacao: reserva.dataCriacao,
       dataDecisao: reserva.dataDecisao
     };
   }
 
+
   /**
    * HISTÓRICO POR PERÍODO
    */
   async historicoPorPeriodo(inicio: Date, fim: Date, usuario: Usuario) {
-
-    if (!inicio || !fim) {
-      throw new Error("Datas obrigatórias");
-    }
-
-    if (inicio > fim) {
-      throw new Error("Data inicial não pode ser maior que a final");
-    }
-
+    inicio.setHours(0, 0, 0, 0);
+    fim.setDate(
+      fim.getDate() + 1
+    );
+    fim.setHours(0, 0, 0, 0);
     const where: any = {
-      dataCriacao: Between(inicio, fim)
+      dataInicio: Between(
+        inicio,
+        fim
+      )
     };
-
     if (usuario.perfil !== Perfil.ADMIN) {
-      where.solicitante = { id: usuario.id };
-    }
+      where.solicitante = {
+        id: usuario.id
+      };
 
+    }
     return repo.find({
       where,
-      relations: ["solicitante", "espaco"],
-      order: { dataCriacao: "DESC" }
+      relations: [
+        "solicitante",
+        "espaco",
+        "aprovador"
+      ],
+
+      order: {
+        dataInicio: "DESC"
+      }
     });
+  }
+
+
+  // Buscar por usuário
+  async historicoUsuario(nome: string, usuario: Usuario) {
+
+    if (usuario.perfil !== Perfil.ADMIN) {
+      throw new Error(
+        "Sem permissão"
+      );
+    }
+
+    return repo
+      .createQueryBuilder("reserva")
+
+      .leftJoinAndSelect(
+        "reserva.solicitante",
+        "solicitante"
+      )
+
+      .leftJoinAndSelect(
+        "reserva.espaco",
+        "espaco"
+      )
+
+      .leftJoinAndSelect(
+        "reserva.aprovador",
+        "aprovador"
+      )
+
+      .where(
+        "solicitante.nome LIKE :nome",
+        {
+          nome: `%${nome}%`
+        }
+      )
+
+      .orderBy(
+        "reserva.dataCriacao",
+        "DESC"
+      )
+      .getMany();
+  }
+
+
+  // listar Calendario
+  async listarCalendario() {
+    return repo.find({
+      where: {
+        status: In([
+          StatusReserva.PENDENTE,
+          StatusReserva.APROVADA
+        ])
+      },
+
+      relations: [
+        "espaco",
+        "solicitante"
+      ],
+
+      order: {
+        dataInicio: "ASC"
+      }
+
+    });
+
   }
 }

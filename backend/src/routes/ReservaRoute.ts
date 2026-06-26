@@ -5,6 +5,12 @@ import { authMiddleware } from "../middlewares/authMiddleware";
 const router = Router();
 const controller = new ReservaController();
 
+// Routas para listar o calendario
+router.get(
+ "/calendario",
+ controller.listarCalendario.bind(controller)
+);
+
 router.use(authMiddleware);
 
 /**
@@ -326,5 +332,36 @@ router.get(
   "/historico/periodo",
   controller.historicoPeriodo.bind(controller)
 );
+
+
+/**
+ * @swagger
+ * /reservas/historico/usuario:
+ *   get:
+ *     summary: Histórico por usuário
+ *     description: Lista reservas filtradas por nome de usuário
+ *     tags: [Reservas]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: nome
+ *         required: true
+ *         schema:
+ *           type: string
+ *         example: João
+ *     responses:
+ *       200:
+ *         description: Histórico retornado com sucesso
+ *       400:
+ *         description: Nome inválido
+ */
+router.get(
+  "/historico/usuario",
+  controller.historicoUsuario.bind(controller)
+);
+
+
+
 
 export default router;

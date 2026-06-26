@@ -83,16 +83,14 @@ export default function UsuarioReservas() {
     // Gerando eventos para o calendário com base nas reservas existentes
     const eventos = reservas.map((reserva) => ({
         id: reserva.id.toString(),
-        title:
-            `${reserva.espaco.nome} - ${reserva.solicitante.nome}`,
+        title:"Reservado",
         start: reserva.dataInicio,
         end: reserva.dataFim,
         color:
             reserva.status === "aprovada"
                 ? "#16a34a"
-                : reserva.status === "pendente"
-                    ? "#f59e0b"
-                    : "#dc2626"
+                : "#f59e0b"
+
     }));
 
 
@@ -100,23 +98,43 @@ export default function UsuarioReservas() {
     async function carregarDados() {
         try {
             const espacosResponse = await api.get("/espacos");
-            const reservasResponse = await api.get("/reservas");
+            console.log(
+                "ESPAÇOS:",
+                espacosResponse.data
+            );
+
+            const calendarioResponse = await api.get("/reservas/calendario");
+
+            console.log(
+                "CALENDARIO:",
+                calendarioResponse.data
+            );
 
             setEspacos(
                 espacosResponse.data
             );
 
             setReservas(
-                reservasResponse.data
+                calendarioResponse.data
+            );
+        } catch (err: any) {
+            console.log(
+                "ERRO API:",
+                err.response?.data
             );
 
-        } catch {
+            console.log(
+                "STATUS:",
+                err.response?.status
+            );
+
             setErro(
                 "Erro ao carregar informações."
             );
         }
     }
 
+    
     // useEffect para carregar os dados ao montar o componente e configurar um intervalo para atualizar os dados a cada 5 segundos
     useEffect(() => {
         carregarDados();
@@ -186,7 +204,7 @@ export default function UsuarioReservas() {
         setCarregando(true);
 
         try {
-            const atualizadas = await api.get("/reservas");
+            const atualizadas = await api.get("/reservas/calendario");
             const listaReservas = atualizadas.data;
             const conflito = listaReservas.some((r: any) => {
 
@@ -405,10 +423,20 @@ export default function UsuarioReservas() {
 
                                     events={
                                         eventos.filter(evento => {
+
                                             const reserva = reservas.find(
                                                 r => r.id === Number(evento.id)
                                             );
-                                            return reserva?.espaco.id === espacoSelecionado?.id;
+
+
+                                            return (
+                                                reserva?.espaco.id === espacoSelecionado?.id &&
+                                                (
+                                                    reserva.status === "pendente" ||
+                                                    reserva.status === "aprovada"
+                                                )
+                                            );
+
                                         })
                                     }
                                     select={handleSelecionarHorario}

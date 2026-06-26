@@ -22,6 +22,7 @@
     "flowbite-react": "^0.12.17",
     "framer-motion": "^12.41.0",
     "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "lucide-react": "^1.18.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
